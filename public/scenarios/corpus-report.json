@@ -1,0 +1,337 @@
+{
+  "version": 1,
+  "startedAt": "2026-09-21T22:24:26.929Z",
+  "status": "verified",
+  "target": 50,
+  "seed": "dotadle-v1",
+  "policy": {
+    "matchAgeDays": 180,
+    "durationSeconds": 10,
+    "minimumStartGapSeconds": 15,
+    "maxPerMatch": 5,
+    "maxHeroes": 4,
+    "maxHeroSpan": 3200,
+    "cameraMargin": 240,
+    "minimumCameraExtent": 1000,
+    "source": "parsed",
+    "attempts": 25,
+    "maxNewReplays": 0,
+    "maxCachedReplays": 20
+  },
+  "failures": [],
+  "retired": [],
+  "sources": [
+    {
+      "matchId": "9009447292",
+      "replaySha256": "1cfd0474cfde1f7bd17481d08afd7dfb2768582f6621ac63df9de51334b28000",
+      "matchStartTime": 1789986997,
+      "frames": 6268,
+      "deathEvents": 57,
+      "examinedDeaths": 57,
+      "validCandidates": 13,
+      "rejected": {
+        "more-than-four-relevant-heroes": 35,
+        "encounter-too-spread": 7,
+        "retired-question-id": 2
+      },
+      "accepted": 5,
+      "staticTerrain": "existing-22-tower-checked-reference",
+      "terrainReason": "Tower-aligned current client reference; exact replay build unverified"
+    },
+    {
+      "matchId": "9009444124",
+      "replaySha256": "32af8b5d6d30128ede1036cf2b26f3d127859bc67e4a2301af4577c4814bc839",
+      "matchStartTime": 1789986817,
+      "frames": 7055,
+      "deathEvents": 84,
+      "examinedDeaths": 84,
+      "validCandidates": 9,
+      "rejected": {
+        "more-than-four-relevant-heroes": 68,
+        "encounter-too-spread": 6,
+        "insufficient-first-death-lead": 1
+      },
+      "accepted": 5,
+      "staticTerrain": "existing-22-tower-checked-reference",
+      "terrainReason": "Tower-aligned current client reference; exact replay build unverified"
+    },
+    {
+      "matchId": "9009355617",
+      "replaySha256": "491af1381980190cc690ccd30e01f296bf2c7583069a02e743b5d08337b76263",
+      "matchStartTime": 1789980832,
+      "frames": 4286,
+      "deathEvents": 22,
+      "examinedDeaths": 22,
+      "validCandidates": 6,
+      "rejected": {
+        "insufficient-first-death-lead": 1,
+        "encounter-too-spread": 6,
+        "more-than-four-relevant-heroes": 9
+      },
+      "accepted": 5,
+      "staticTerrain": "existing-22-tower-checked-reference",
+      "terrainReason": "Tower-aligned current client reference; exact replay build unverified"
+    },
+    {
+      "matchId": "9009449291",
+      "replaySha256": "4f8f341643ef47c10c5358b03157b5f32cbfe612d089dd775a46c7768d752f4f",
+      "matchStartTime": 1789987127,
+      "frames": 7669,
+      "deathEvents": 48,
+      "examinedDeaths": 48,
+      "validCandidates": 3,
+      "rejected": {
+        "more-than-four-relevant-heroes": 39,
+        "insufficient-opposing-participants": 3,
+        "encounter-too-spread": 3
+      },
+      "accepted": 3,
+      "staticTerrain": "existing-22-tower-checked-reference",
+      "terrainReason": "Tower-aligned current client reference; exact replay build unverified"
+    },
+    {
+      "matchId": "9009452075",
+      "replaySha256": "6ae7cf3ca143868e89b1bbc7b6d002d544b3a82cd4c6023ecc7e1730019a5ece",
+      "matchStartTime": 1789987297,
+      "frames": 4966,
+      "deathEvents": 24,
+      "examinedDeaths": 24,
+      "validCandidates": 10,
+      "rejected": {
+        "more-than-four-relevant-heroes": 13,
+        "insufficient-first-death-lead": 1
+      },
+      "accepted": 5,
+      "staticTerrain": "existing-22-tower-checked-reference",
+      "terrainReason": "Tower-aligned current client reference; exact replay build unverified"
+    },
+    {
+      "matchId": "9009344330",
+      "replaySha256": "74020b1a461cafc12adc9bd6a61dc650d32f4cdc3ae280bb05827a850aea810f",
+      "matchStartTime": 1789979997,
+      "frames": 8760,
+      "deathEvents": 92,
+      "examinedDeaths": 92,
+      "validCandidates": 18,
+      "rejected": {
+        "more-than-four-relevant-heroes": 61,
+        "encounter-too-spread": 10,
+        "victim-not-observed-alive-and-positioned": 3
+      },
+      "accepted": 5,
+      "staticTerrain": "existing-22-tower-checked-reference",
+      "terrainReason": "Tower-aligned current client reference; exact replay build unverified"
+    },
+    {
+      "matchId": "9009456388",
+      "replaySha256": "74173d0e1ae8a113e90716de4eeb4e651ae3a8fe13739f3b24299907f45fab2c",
+      "matchStartTime": 1789987553,
+      "frames": 7910,
+      "deathEvents": 65,
+      "examinedDeaths": 65,
+      "validCandidates": 7,
+      "rejected": {
+        "encounter-too-spread": 2,
+        "more-than-four-relevant-heroes": 55,
+        "retired-question-id": 1
+      },
+      "accepted": 5,
+      "staticTerrain": "existing-22-tower-checked-reference",
+      "terrainReason": "Tower-aligned current client reference; exact replay build unverified"
+    },
+    {
+      "matchId": "9009445367",
+      "replaySha256": "7fa890222d7d0b82bd6abb608c6e5e11fbf18f2e8e30244ee30b03b5be642d5c",
+      "matchStartTime": 1789986888,
+      "frames": 9300,
+      "deathEvents": 58,
+      "examinedDeaths": 58,
+      "validCandidates": 12,
+      "rejected": {
+        "more-than-four-relevant-heroes": 43,
+        "encounter-too-spread": 3
+      },
+      "accepted": 5,
+      "staticTerrain": "existing-22-tower-checked-reference",
+      "terrainReason": "Tower-aligned current client reference; exact replay build unverified"
+    },
+    {
+      "matchId": "9010373602",
+      "replaySha256": "9a0103eb3dce88ff429530850acca4e99aa892e417473f81602ecb41e26fc68d",
+      "matchStartTime": 1790026257,
+      "frames": 7382,
+      "deathEvents": 63,
+      "examinedDeaths": 63,
+      "validCandidates": 14,
+      "rejected": {
+        "more-than-four-relevant-heroes": 43,
+        "encounter-too-spread": 6
+      },
+      "accepted": 5,
+      "staticTerrain": "existing-22-tower-checked-reference",
+      "terrainReason": "Tower-aligned current client reference; exact replay build unverified"
+    },
+    {
+      "matchId": "9009470306",
+      "replaySha256": "c6c93674fe85b9597834d928cedfce7f21e503b350f6f85175c14fd4e90ddded",
+      "matchStartTime": 1789988362,
+      "frames": 4396,
+      "deathEvents": 37,
+      "examinedDeaths": 37,
+      "validCandidates": 19,
+      "rejected": {
+        "more-than-four-relevant-heroes": 15,
+        "ambiguous-first-death": 2,
+        "encounter-too-spread": 1
+      },
+      "accepted": 5,
+      "staticTerrain": "existing-22-tower-checked-reference",
+      "terrainReason": "Tower-aligned current client reference; exact replay build unverified"
+    },
+    {
+      "matchId": "9009461455",
+      "replaySha256": "fb41750971c90c2b316fb2325b05486945b23dfb0c69a9e6dcb48d5428784f7e",
+      "matchStartTime": 1789987843,
+      "frames": 5697,
+      "deathEvents": 42,
+      "examinedDeaths": 42,
+      "validCandidates": 2,
+      "rejected": {
+        "more-than-four-relevant-heroes": 39,
+        "encounter-too-spread": 1
+      },
+      "accepted": 2,
+      "staticTerrain": "existing-22-tower-checked-reference",
+      "terrainReason": "Tower-aligned current client reference; exact replay build unverified"
+    }
+  ],
+  "reused": 50,
+  "actualPublishedRealCount": 50,
+  "finishedAt": "2026-09-21T22:24:42.366Z",
+  "accepted": 50,
+  "newlyAccepted": 0,
+  "acceptedIds": [
+    "replay-9009355617-298767",
+    "replay-9009447292-1177000",
+    "replay-9009447292-534500",
+    "replay-9009447292-910267",
+    "replay-9009447292-725767",
+    "replay-9009447292-468767",
+    "replay-9009444124-679500",
+    "replay-9009444124-540767",
+    "replay-9009444124-224267",
+    "replay-9009444124-350000",
+    "replay-9009444124-407000",
+    "replay-9009355617-341267",
+    "replay-9009355617-587267",
+    "replay-9009355617-515267",
+    "replay-9009355617-800267",
+    "replay-9009449291-270767",
+    "replay-9009449291-342000",
+    "replay-9009449291-563767",
+    "replay-9009452075-1419267",
+    "replay-9009452075-1160000",
+    "replay-9009452075-1013500",
+    "replay-9009452075-1364767",
+    "replay-9009452075-1115000",
+    "replay-9009344330-231267",
+    "replay-9009344330-1058767",
+    "replay-9009344330-976267",
+    "replay-9009344330-1657267",
+    "replay-9009344330-667267",
+    "replay-9009456388-351500",
+    "replay-9009456388-385000",
+    "replay-9009456388-1712767",
+    "replay-9009456388-316767",
+    "replay-9009456388-506267",
+    "replay-9009445367-964000",
+    "replay-9009445367-263500",
+    "replay-9009445367-822000",
+    "replay-9009445367-921500",
+    "replay-9009445367-532500",
+    "replay-9010373602-1119267",
+    "replay-9010373602-583267",
+    "replay-9010373602-556500",
+    "replay-9010373602-1312767",
+    "replay-9010373602-632500",
+    "replay-9009470306-873767",
+    "replay-9009470306-427767",
+    "replay-9009470306-253267",
+    "replay-9009470306-923767",
+    "replay-9009470306-591267",
+    "replay-9009461455-206000",
+    "replay-9009461455-333500"
+  ],
+  "distinctAnswers": 34,
+  "distinctHeroes": 56,
+  "distinctMatches": 11,
+  "matchDistribution": {
+    "9009355617": 5,
+    "9009447292": 5,
+    "9009444124": 5,
+    "9009449291": 3,
+    "9009452075": 5,
+    "9009344330": 5,
+    "9009456388": 5,
+    "9009445367": 5,
+    "9010373602": 5,
+    "9009470306": 5,
+    "9009461455": 2
+  },
+  "dailyChanges": [],
+  "updatedScenarioIds": [],
+  "retiredQuestionIds": [
+    "replay-9009447292-1357500",
+    "replay-9009447292-446000",
+    "replay-9009456388-539267"
+  ],
+  "candidateCount": 113,
+  "eligiblePoolCount": 50,
+  "candidateExclusions": {
+    "duplicate-or-already-published-id": 50,
+    "no-observed-hero-combat": 3,
+    "same-source-death": 4,
+    "within-15-seconds-of-another-window": 12,
+    "target-reached": 44
+  },
+  "retirementExclusions": {
+    "overMatchCap": 0,
+    "overTarget": 0,
+    "currentPolicy": 0,
+    "sourceUnavailable": 0
+  },
+  "candidateAccounting": {
+    "examinedDeaths": 592,
+    "extractionRejected": 479,
+    "validCandidates": 113,
+    "selectionExcluded": 113,
+    "newlyAccepted": 0,
+    "reused": 50,
+    "activeTotal": 50
+  },
+  "cacheLoads": 11,
+  "networkAttempts": 0,
+  "downloadAttempts": 0,
+  "newlyPrepared": 0,
+  "dateRange": {
+    "oldestMatch": "2026-09-21T08:39:57.000Z",
+    "newestMatch": "2026-09-21T21:30:57.000Z"
+  },
+  "verification": {
+    "schema": true,
+    "exactSourceFramesAndEvents": true,
+    "derivedFirstDeath": true,
+    "recent": true,
+    "uniqueIdsAndOutcomes": true,
+    "nonOverlapping": true,
+    "perMatchCap": true,
+    "maxFourHeroes": true,
+    "heroTrajectoryCamera": true
+  },
+  "limitations": [
+    "First-death questions only; no counterfactual or escape simulation.",
+    "Seeded selection balances matches within the hard cap, without hero or victim ranking.",
+    "Unchecked replay hashes never inherit static client terrain."
+  ],
+  "historyPath": "/scenarios/reports/corpus-1790029466929.json"
+}

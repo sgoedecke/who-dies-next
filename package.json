@@ -1,0 +1,38 @@
+{
+  "name": "dotadle",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "test:browser": "playwright test",
+    "ingest": "tsx ingestion/cli.ts",
+    "scrape": "tsx ingestion/batch.ts",
+    "audit:publish": "tsx scripts/prepare-public-assets.ts --check && tsx scripts/audit-publication.ts",
+    "assets:fetch": "tsx scripts/fetch-assets.ts",
+    "assets:prepare": "tsx scripts/prepare-public-assets.ts",
+    "map:probe": "tsx scripts/map-assets-probe.ts",
+    "map:qr": "tsx scripts/steam-qr-manifest.ts",
+    "map:extract": "tsx scripts/extract-client-map.ts",
+    "worker:build": "bash worker/build.sh"
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "zod": "^4.1.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.4",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,412 @@
+{
+  "version": 1,
+  "scenarios": [
+    {
+      "id": "replay-9009355617-298767",
+      "title": "Ten seconds on the edge (9009355617 @ 298.8s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009355617-298767.json",
+      "matchStartTime": 1789980832
+    },
+    {
+      "id": "replay-9009447292-1177000",
+      "title": "Ten seconds on the edge (9009447292 @ 1177.0s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009447292-1177000.json",
+      "matchStartTime": 1789986997
+    },
+    {
+      "id": "replay-9009447292-534500",
+      "title": "Ten seconds on the edge (9009447292 @ 534.5s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009447292-534500.json",
+      "matchStartTime": 1789986997
+    },
+    {
+      "id": "replay-9009447292-910267",
+      "title": "Ten seconds on the edge (9009447292 @ 910.3s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009447292-910267.json",
+      "matchStartTime": 1789986997
+    },
+    {
+      "id": "replay-9009447292-725767",
+      "title": "Ten seconds on the edge (9009447292 @ 725.8s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009447292-725767.json",
+      "matchStartTime": 1789986997
+    },
+    {
+      "id": "replay-9009447292-468767",
+      "title": "Ten seconds on the edge (9009447292 @ 468.8s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009447292-468767.json",
+      "matchStartTime": 1789986997
+    },
+    {
+      "id": "replay-9009444124-679500",
+      "title": "Ten seconds on the edge (9009444124 @ 679.5s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009444124-679500.json",
+      "matchStartTime": 1789986817
+    },
+    {
+      "id": "replay-9009444124-540767",
+      "title": "Ten seconds on the edge (9009444124 @ 540.8s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009444124-540767.json",
+      "matchStartTime": 1789986817
+    },
+    {
+      "id": "replay-9009444124-224267",
+      "title": "Ten seconds on the edge (9009444124 @ 224.3s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009444124-224267.json",
+      "matchStartTime": 1789986817
+    },
+    {
+      "id": "replay-9009444124-350000",
+      "title": "Ten seconds on the edge (9009444124 @ 350.0s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009444124-350000.json",
+      "matchStartTime": 1789986817
+    },
+    {
+      "id": "replay-9009444124-407000",
+      "title": "Ten seconds on the edge (9009444124 @ 407.0s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009444124-407000.json",
+      "matchStartTime": 1789986817
+    },
+    {
+      "id": "replay-9009355617-341267",
+      "title": "Ten seconds on the edge (9009355617 @ 341.3s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009355617-341267.json",
+      "matchStartTime": 1789980832
+    },
+    {
+      "id": "replay-9009355617-587267",
+      "title": "Ten seconds on the edge (9009355617 @ 587.3s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009355617-587267.json",
+      "matchStartTime": 1789980832
+    },
+    {
+      "id": "replay-9009355617-515267",
+      "title": "Ten seconds on the edge (9009355617 @ 515.3s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009355617-515267.json",
+      "matchStartTime": 1789980832
+    },
+    {
+      "id": "replay-9009355617-800267",
+      "title": "Ten seconds on the edge (9009355617 @ 800.3s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009355617-800267.json",
+      "matchStartTime": 1789980832
+    },
+    {
+      "id": "replay-9009449291-270767",
+      "title": "Ten seconds on the edge (9009449291 @ 270.8s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009449291-270767.json",
+      "matchStartTime": 1789987127
+    },
+    {
+      "id": "replay-9009449291-342000",
+      "title": "Ten seconds on the edge (9009449291 @ 342.0s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009449291-342000.json",
+      "matchStartTime": 1789987127
+    },
+    {
+      "id": "replay-9009449291-563767",
+      "title": "Ten seconds on the edge (9009449291 @ 563.8s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009449291-563767.json",
+      "matchStartTime": 1789987127
+    },
+    {
+      "id": "replay-9009452075-1419267",
+      "title": "Ten seconds on the edge (9009452075 @ 1419.3s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009452075-1419267.json",
+      "matchStartTime": 1789987297
+    },
+    {
+      "id": "replay-9009452075-1160000",
+      "title": "Ten seconds on the edge (9009452075 @ 1160.0s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009452075-1160000.json",
+      "matchStartTime": 1789987297
+    },
+    {
+      "id": "replay-9009452075-1013500",
+      "title": "Ten seconds on the edge (9009452075 @ 1013.5s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009452075-1013500.json",
+      "matchStartTime": 1789987297
+    },
+    {
+      "id": "replay-9009452075-1364767",
+      "title": "Ten seconds on the edge (9009452075 @ 1364.8s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009452075-1364767.json",
+      "matchStartTime": 1789987297
+    },
+    {
+      "id": "replay-9009452075-1115000",
+      "title": "Ten seconds on the edge (9009452075 @ 1115.0s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009452075-1115000.json",
+      "matchStartTime": 1789987297
+    },
+    {
+      "id": "replay-9009344330-231267",
+      "title": "Ten seconds on the edge (9009344330 @ 231.3s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009344330-231267.json",
+      "matchStartTime": 1789979997
+    },
+    {
+      "id": "replay-9009344330-1058767",
+      "title": "Ten seconds on the edge (9009344330 @ 1058.8s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009344330-1058767.json",
+      "matchStartTime": 1789979997
+    },
+    {
+      "id": "replay-9009344330-976267",
+      "title": "Ten seconds on the edge (9009344330 @ 976.3s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009344330-976267.json",
+      "matchStartTime": 1789979997
+    },
+    {
+      "id": "replay-9009344330-1657267",
+      "title": "Ten seconds on the edge (9009344330 @ 27:37)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009344330-1657267.json",
+      "matchStartTime": 1789979997
+    },
+    {
+      "id": "replay-9009344330-667267",
+      "title": "Ten seconds on the edge (9009344330 @ 667.3s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009344330-667267.json",
+      "matchStartTime": 1789979997
+    },
+    {
+      "id": "replay-9009456388-351500",
+      "title": "Ten seconds on the edge (9009456388 @ 351.5s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009456388-351500.json",
+      "matchStartTime": 1789987553
+    },
+    {
+      "id": "replay-9009456388-385000",
+      "title": "Ten seconds on the edge (9009456388 @ 385.0s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009456388-385000.json",
+      "matchStartTime": 1789987553
+    },
+    {
+      "id": "replay-9009456388-1712767",
+      "title": "Ten seconds on the edge (9009456388 @ 1712.8s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009456388-1712767.json",
+      "matchStartTime": 1789987553
+    },
+    {
+      "id": "replay-9009456388-316767",
+      "title": "Ten seconds on the edge (9009456388 @ 316.8s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009456388-316767.json",
+      "matchStartTime": 1789987553
+    },
+    {
+      "id": "replay-9009456388-506267",
+      "title": "Ten seconds on the edge (9009456388 @ 506.3s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009456388-506267.json",
+      "matchStartTime": 1789987553
+    },
+    {
+      "id": "replay-9009445367-964000",
+      "title": "Ten seconds on the edge (9009445367 @ 964.0s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009445367-964000.json",
+      "matchStartTime": 1789986888
+    },
+    {
+      "id": "replay-9009445367-263500",
+      "title": "Ten seconds on the edge (9009445367 @ 263.5s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009445367-263500.json",
+      "matchStartTime": 1789986888
+    },
+    {
+      "id": "replay-9009445367-822000",
+      "title": "Ten seconds on the edge (9009445367 @ 822.0s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009445367-822000.json",
+      "matchStartTime": 1789986888
+    },
+    {
+      "id": "replay-9009445367-921500",
+      "title": "Ten seconds on the edge (9009445367 @ 921.5s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009445367-921500.json",
+      "matchStartTime": 1789986888
+    },
+    {
+      "id": "replay-9009445367-532500",
+      "title": "Ten seconds on the edge (9009445367 @ 532.5s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009445367-532500.json",
+      "matchStartTime": 1789986888
+    },
+    {
+      "id": "replay-9010373602-1119267",
+      "title": "Ten seconds on the edge (9010373602 @ 1119.3s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9010373602-1119267.json",
+      "matchStartTime": 1790026257
+    },
+    {
+      "id": "replay-9010373602-583267",
+      "title": "Ten seconds on the edge (9010373602 @ 583.3s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9010373602-583267.json",
+      "matchStartTime": 1790026257
+    },
+    {
+      "id": "replay-9010373602-556500",
+      "title": "Ten seconds on the edge (9010373602 @ 556.5s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9010373602-556500.json",
+      "matchStartTime": 1790026257
+    },
+    {
+      "id": "replay-9010373602-1312767",
+      "title": "Ten seconds on the edge (9010373602 @ 1312.8s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9010373602-1312767.json",
+      "matchStartTime": 1790026257
+    },
+    {
+      "id": "replay-9010373602-632500",
+      "title": "Ten seconds on the edge (9010373602 @ 632.5s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9010373602-632500.json",
+      "matchStartTime": 1790026257
+    },
+    {
+      "id": "replay-9009470306-873767",
+      "title": "Ten seconds on the edge (9009470306 @ 873.8s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009470306-873767.json",
+      "matchStartTime": 1789988362
+    },
+    {
+      "id": "replay-9009470306-427767",
+      "title": "Ten seconds on the edge (9009470306 @ 427.8s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009470306-427767.json",
+      "matchStartTime": 1789988362
+    },
+    {
+      "id": "replay-9009470306-253267",
+      "title": "Ten seconds on the edge (9009470306 @ 253.3s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009470306-253267.json",
+      "matchStartTime": 1789988362
+    },
+    {
+      "id": "replay-9009470306-923767",
+      "title": "Ten seconds on the edge (9009470306 @ 923.8s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009470306-923767.json",
+      "matchStartTime": 1789988362
+    },
+    {
+      "id": "replay-9009470306-591267",
+      "title": "Ten seconds on the edge (9009470306 @ 591.3s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009470306-591267.json",
+      "matchStartTime": 1789988362
+    },
+    {
+      "id": "replay-9009461455-206000",
+      "title": "Ten seconds on the edge (9009461455 @ 206.0s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009461455-206000.json",
+      "matchStartTime": 1789987843
+    },
+    {
+      "id": "replay-9009461455-333500",
+      "title": "Ten seconds on the edge (9009461455 @ 333.5s)",
+      "kind": "replay",
+      "path": "/scenarios/replay-9009461455-333500.json",
+      "matchStartTime": 1789987843
+    }
+  ],
+  "daily": {
+    "2026-09-21": "replay-9009355617-298767",
+    "2026-10-14": "replay-9009344330-231267",
+    "2026-10-23": "replay-9009355617-341267",
+    "2026-09-25": "replay-9009444124-540767",
+    "2026-09-27": "replay-9009445367-964000",
+    "2026-10-04": "replay-9009470306-427767",
+    "2026-10-06": "replay-9009447292-1177000",
+    "2026-10-08": "replay-9009470306-873767",
+    "2026-10-10": "replay-9009452075-1419267",
+    "2026-10-19": "replay-9009456388-351500",
+    "2026-10-24": "replay-9009445367-263500",
+    "2026-10-25": "replay-9009444124-679500",
+    "2026-09-22": "replay-9009447292-725767",
+    "2026-09-23": "replay-9009470306-591267",
+    "2026-09-24": "replay-9009444124-224267",
+    "2026-09-26": "replay-9009449291-270767",
+    "2026-09-28": "replay-9009461455-333500",
+    "2026-09-29": "replay-9009470306-923767",
+    "2026-09-30": "replay-9009452075-1013500",
+    "2026-10-01": "replay-9009461455-206000",
+    "2026-10-02": "replay-9009452075-1115000",
+    "2026-10-03": "replay-9009445367-921500",
+    "2026-10-05": "replay-9009344330-1058767",
+    "2026-10-07": "replay-9009447292-468767",
+    "2026-10-09": "replay-9009452075-1160000",
+    "2026-10-11": "replay-9009445367-822000",
+    "2026-10-12": "replay-9009456388-1712767",
+    "2026-10-13": "replay-9009447292-910267",
+    "2026-10-15": "replay-9009447292-534500",
+    "2026-10-16": "replay-9009444124-407000",
+    "2026-10-17": "replay-9009344330-667267",
+    "2026-10-18": "replay-9010373602-556500",
+    "2026-10-20": "replay-9009449291-342000",
+    "2026-10-21": "replay-9009355617-515267",
+    "2026-10-22": "replay-9009456388-506267",
+    "2026-10-26": "replay-9009344330-1657267",
+    "2026-10-27": "replay-9010373602-1119267",
+    "2026-10-28": "replay-9009456388-316767",
+    "2026-10-29": "replay-9010373602-632500",
+    "2026-10-30": "replay-9009470306-253267",
+    "2026-10-31": "replay-9009445367-532500",
+    "2026-11-01": "replay-9009452075-1364767",
+    "2026-11-02": "replay-9009344330-976267",
+    "2026-11-03": "replay-9009355617-800267",
+    "2026-11-04": "replay-9009449291-563767",
+    "2026-11-05": "replay-9010373602-583267",
+    "2026-11-06": "replay-9009444124-350000",
+    "2026-11-07": "replay-9010373602-1312767",
+    "2026-11-08": "replay-9009456388-385000",
+    "2026-11-09": "replay-9009355617-587267"
+  },
+  "retiredQuestionIds": [
+    "replay-9009447292-1357500",
+    "replay-9009447292-446000",
+    "replay-9009456388-539267"
+  ]
+}
