@@ -8,9 +8,11 @@ This is a lightweight 2D browser view, not a Dota renderer or simulator.
 - Repository: **https://github.com/sgoedecke/who-dies-next**
 - **50 real snippets from 11 recent matches**, at most four relevant heroes
   per snippet and five snippets per match.
-- Practice only: make a guess, watch, pause/scrub/restart, then choose **Next**
-  for another random eligible encounter. There is no daily lock, account,
-  completion restore or shipped synthetic demo.
+- Daily: everyone gets the same five clips each day, turning over at local
+  midnight. Guess, watch, then move on to the next clip. At the end, a results
+  page shows your score and a **Copy result** button that copies a five-square
+  emoji summary and a link. The day's clips are dealt from seeded shuffles of
+  the pool, so no clip repeats until all have been used.
 
 The exact recorded hero coordinates are preserved. A tight stable camera,
 readable portraits and collision-separated callouts keep encounters inspectable.
@@ -21,8 +23,8 @@ The verdict is held back until the answer's recorded death plays, so the clip
 isn't spoiled. Movement trails, attack lines, cast icons, damage numbers and
 death bursts are all derived from recorded frames and events; nothing is
 simulated. The event feed lists casts, spell damage and deaths, and leaves out
-auto-attacks, modifiers and courier actions. A session-only score and streak
-lives in memory and is never stored.
+auto-attacks, modifiers and courier actions. Progress for the day
+is kept in `localStorage`, so a reload resumes where you left off.
 
 ## Run locally
 

@@ -1,8 +1,7 @@
-import { useCallback, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { catalogSchema, scenarioSchema } from '../shared/scenario';
 import type { Catalog, Hero, Scenario } from '../shared/scenario';
 import { ZodError } from 'zod';
-import { scenarioEligibility } from '../shared/recent';
 import { resolveAbilityAsset, resolveItemAsset } from '../shared/assets';
 import { frameAt, heroName, percent, readableName, readableRecordText, scenarioPath } from './game';
 import { AbilityArtwork, AssetContext, displayHeroName, HeroPortrait, ItemArtwork, useAssetManifest } from './assets';
@@ -10,7 +9,9 @@ import { Arena, healthTone } from './Arena';
 import { deathTimes, feedRows, revealTime } from './fx';
 import type { FeedRow, Unit } from './fx';
 import { HeroHUD } from './HeroHUD';
-import { catalogEntryAvailability, eligiblePracticeEntries, randomPracticeId } from './availability';
+import { eligiblePracticeEntries } from './availability';
+import { DAILY_COUNT, dailyIds, loadProgress, localDay, msUntilNextDay, puzzleNumber, resultEmoji, saveProgress, shareText } from './daily';
+import type { DailyResult } from './daily';
 import { useClientMap } from './ClientMap';
 import type { ClientMap } from '../shared/client-map';
 import { publicUrl } from './public-url';
@@ -23,56 +24,19 @@ function loadError(cause: unknown): string {
 export function App() {
   const assets = useAssetManifest();
   const clientMap = useClientMap();
-  const [nowMs, setNowMs] = useState(Date.now);
+  const [nowMs] = useState(Date.now);
+  // The day is fixed for the visit so a puzzle in progress doesn't change at midnight.
+  const [day] = useState(() => localDay());
   const [catalog, setCatalog] = useState<Catalog | null>(null);
+  const [ids, setIds] = useState<string[]>([]);
+  const [results, setResults] = useState<DailyResult[]>([]);
+  const [index, setIndex] = useState(0);
+  const [revealedCurrent, setRevealedCurrent] = useState(false);
   const [scenario, setScenario] = useState<Scenario | null>(null);
-  const [requested, setRequested] = useState(() => new URLSearchParams(location.search).get('scenario') || null);
   const [error, setError] = useState('');
-  const [unavailable, setUnavailable] = useState('');
-  const [rejectedSources, setRejectedSources] = useState<Record<string, string>>({});
   const [retry, setRetry] = useState(0);
-  const [visit, setVisit] = useState(0);
-  const [notice, setNotice] = useState('');
-  // Session-only score: the game deliberately persists nothing between visits.
-  const [score, setScore] = useState({ played: 0, correct: 0, streak: 0, best: 0 });
-  const recordResult = useCallback((won: boolean) => setScore(previous => {
-    const streak = won ? previous.streak + 1 : 0;
-    return { played: previous.played + 1, correct: previous.correct + (won ? 1 : 0), streak, best: Math.max(previous.best, streak) };
-  }), []);
-  const selectedId = requested;
-  const practiceEntries = catalog ? eligiblePracticeEntries(catalog, nowMs, Object.keys(rejectedSources)) : [];
-  const canNext = practiceEntries.some(entry => entry.id !== selectedId);
-  const currentAvailability = scenario ? scenarioEligibility(scenario, nowMs) : null;
-  const unavailableReason = unavailable || (currentAvailability && !currentAvailability.eligible ? currentAvailability.message : '');
-  const failure = error || unavailableReason || (catalog && !practiceEntries.length ? 'No eligible real replays are available.' : '');
-
-  function selectFromUrl(nextCatalog: Catalog) {
-    const url = new URL(location.href);
-    const bookmarked = url.searchParams.get('scenario');
-    const eligible = eligiblePracticeEntries(nextCatalog);
-    const id = eligible.some(entry => entry.id === bookmarked) ? bookmarked : randomPracticeId(eligible, null);
-    setRequested(id);
-    setNotice(bookmarked && id && bookmarked !== id ? 'That replay is unavailable. Showing another real replay.' : '');
-    url.searchParams.delete('mode');
-    if (id) url.searchParams.set('scenario', id);
-    else url.searchParams.delete('scenario');
-    history.replaceState(null, '', url);
-  }
-
-  useEffect(() => {
-    const timer = window.setInterval(() => setNowMs(Date.now()), 30_000);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    const onPop = () => {
-      if (catalog) selectFromUrl(catalog);
-      else setRequested(new URLSearchParams(location.search).get('scenario') || null);
-      setVisit(value => value + 1);
-    };
-    window.addEventListener('popstate', onPop);
-    return () => window.removeEventListener('popstate', onPop);
-  }, [catalog]);
+  const finished = ids.length > 0 && index >= ids.length;
+  const currentId = finished ? null : ids[index] ?? null;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -80,82 +44,57 @@ export function App() {
     fetch(publicUrl('/scenarios/index.json'), { signal: controller.signal })
       .then(response => { if (!response.ok) throw new Error('Catalog unavailable.'); return response.json(); })
       .then(data => {
-        if (!controller.signal.aborted) {
-          const parsed = catalogSchema.safeParse(data);
-          if (!parsed.success) {
-            if (parsed.error.issues.some(issue => issue.code === 'too_small' && issue.path.length === 1 && issue.path[0] === 'scenarios')) {
-              throw new Error('No eligible real replays are available.');
-            }
-            throw parsed.error;
-          }
-          setCatalog(parsed.data);
-          setRejectedSources({});
-          selectFromUrl(parsed.data);
-        }
+        if (controller.signal.aborted) return;
+        const parsed = catalogSchema.parse(data);
+        const todays = dailyIds(eligiblePracticeEntries(parsed, Date.parse(`${day}T12:00:00Z`)), day);
+        if (!todays.length) throw new Error('No eligible real replays are available.');
+        const saved = loadProgress(day, todays);
+        setCatalog(parsed);
+        setIds(todays);
+        setResults(saved);
+        setIndex(saved.length);
       })
       .catch((cause: unknown) => {
         if (!controller.signal.aborted) setError(loadError(cause));
       });
     return () => controller.abort();
-  }, [retry]);
+  }, [retry, day]);
 
   useEffect(() => {
     setScenario(null);
-    setUnavailable('');
-    if (!catalog || !selectedId) return;
+    if (!catalog || !currentId) return;
     const controller = new AbortController();
     setError('');
-    async function load() {
+    (async () => {
       try {
-        const entry = catalog!.scenarios.find(candidate => candidate.id === selectedId);
-        if (entry) {
-          const status = catalogEntryAvailability(entry);
-          if (!status.eligible) {
-            if (!controller.signal.aborted) setUnavailable(status.message);
-            return;
-          }
-        }
-        const response = await fetch(publicUrl(scenarioPath(catalog!, selectedId!)), { signal: controller.signal });
+        const response = await fetch(publicUrl(scenarioPath(catalog, currentId)), { signal: controller.signal });
         if (!response.ok) throw new Error('Scenario unavailable.');
         const data = scenarioSchema.parse(await response.json());
-        if (data.id !== selectedId) throw new Error('Scenario does not match the catalog.');
-        const status = scenarioEligibility(data);
-        if (!status.eligible) {
-          if (!controller.signal.aborted) {
-            setRejectedSources(previous => ({ ...previous, [data.id]: status.message }));
-            setUnavailable(status.message);
-          }
-          return;
-        }
+        if (data.id !== currentId) throw new Error('Scenario does not match the catalog.');
         if (!controller.signal.aborted) setScenario(data);
       } catch (cause) {
         if (!controller.signal.aborted) setError(loadError(cause));
       }
-    }
-    void load();
+    })();
     return () => controller.abort();
-  }, [catalog, selectedId, retry, visit]);
+  }, [catalog, currentId, retry]);
 
-  function navigate(id: string) {
-    const url = new URL(location.href);
-    url.searchParams.set('scenario', id);
-    url.searchParams.delete('mode');
-    history.pushState(null, '', url);
-    setScenario(null);
-    setUnavailable('');
-    setError('');
-    setNotice('');
-    setRequested(id);
-    setVisit(value => value + 1);
+  const recordGuess = useCallback((result: DailyResult) => setResults(previous => {
+    if (previous.length !== index) return previous;
+    const next = [...previous, result];
+    saveProgress(day, next);
+    return next;
+  }), [day, index]);
+  const onReveal = useCallback(() => setRevealedCurrent(true), []);
+
+  function next() {
+    setRevealedCurrent(false);
+    setIndex(results.length);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function nextPractice() {
-    const now = Date.now();
-    setNowMs(now);
-    const candidates = catalog ? eligiblePracticeEntries(catalog, now, Object.keys(rejectedSources)) : [];
-    const id = randomPracticeId(candidates, selectedId);
-    if (id) navigate(id);
-  }
+  const shown = (position: number) => results[position] && (position < index || revealedCurrent);
+  const isLast = index === ids.length - 1;
 
   return <AssetContext.Provider value={assets}>
     <main className="app-shell">
@@ -163,18 +102,83 @@ export function App() {
         <div className="question-row">
           <h1>Who dies <span className="question-accent">next</span>?</h1>
         </div>
-        {score.played > 0 && <p className="scoreboard" aria-label={`Session score: ${score.correct} of ${score.played} correct, current streak ${score.streak}, best ${score.best}`}>
-          {score.streak > 0 && <span className="streak hot" title="Current streak"><span aria-hidden="true">🔥</span> {score.streak}</span>}
-          <span title="Correct this session">{score.correct}/{score.played}</span>
-          {score.best > 1 && <span className="best" title="Best streak this session">best {score.best}</span>}
-        </p>}
+        {ids.length > 0 && <div className="daily-progress" aria-label={`Daily #${puzzleNumber(day)}: ${finished ? 'complete' : `clip ${index + 1} of ${ids.length}`}`}>
+          <span className="daily-number">#{puzzleNumber(day)}</span>
+          <ol className="progress-pips" aria-hidden="true">
+            {ids.map((id, position) => <li key={id} className={`pip ${shown(position) ? (results[position].correct ? 'won' : 'lost') : ''} ${position === index ? 'current' : ''}`} />)}
+          </ol>
+        </div>}
       </div>
-      {notice && <p className="selection-notice" role="status">{notice}</p>}
-      {failure ? <section className="load-state" role="alert"><p>{failure}</p><button onClick={() => setRetry(v => v + 1)}>Retry</button>{canNext && <button onClick={nextPractice}>Next</button>}</section>
-            : scenario && scenario.id === selectedId ? <Game key={`${scenario.id}:${visit}`} scenario={scenario} clientMap={clientMap} nowMs={nowMs} canNext={canNext} onNext={nextPractice} onResult={recordResult} />
-              : <p className="loading-state" role="status">Loading…</p>}
+      {error ? <section className="load-state" role="alert"><p>{error}</p><button onClick={() => setRetry(v => v + 1)}>Retry</button></section>
+        : finished ? <DailyResults day={day} results={results} />
+          : scenario && scenario.id === currentId ? <Game key={scenario.id} scenario={scenario} clientMap={clientMap} nowMs={nowMs}
+            nextLabel={isLast ? 'See results' : 'Next'} onGuess={recordGuess} onReveal={onReveal} onNext={next} />
+            : <p className="loading-state" role="status">Loading…</p>}
     </main>
   </AssetContext.Provider>;
+}
+
+function useCountdown(): string {
+  const [remaining, setRemaining] = useState(() => msUntilNextDay());
+  useEffect(() => {
+    const timer = window.setInterval(() => setRemaining(msUntilNextDay()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+  const seconds = Math.floor(remaining / 1000);
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${pad(Math.floor(seconds / 3600))}:${pad(Math.floor(seconds / 60) % 60)}:${pad(seconds % 60)}`;
+}
+
+async function copyText(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.append(area);
+    area.select();
+    const ok = document.execCommand('copy');
+    area.remove();
+    return ok;
+  }
+}
+
+function DailyResults({ day, results }: { day: string; results: DailyResult[] }) {
+  const [copied, setCopied] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const countdown = useCountdown();
+  const score = results.filter(result => result.correct).length;
+  const text = shareText(day, results);
+  const verdict = score === DAILY_COUNT ? 'Flawless.' : score >= 4 ? 'Sharp reads.' : score >= 2 ? 'Not bad.' : 'Rough day in the trenches.';
+
+  async function copy() {
+    setCopied(await copyText(text) ? 'copied' : 'failed');
+  }
+  useEffect(() => {
+    if (copied !== 'copied') return;
+    const timer = window.setTimeout(() => setCopied('idle'), 2000);
+    return () => clearTimeout(timer);
+  }, [copied]);
+
+  return <section className="daily-results" aria-label="Daily results">
+    <p className="results-kicker">Daily #{puzzleNumber(day)} complete</p>
+    <p className="results-score"><strong>{score}</strong>/{DAILY_COUNT}</p>
+    <p className="results-verdict">{verdict}</p>
+    <p className="results-squares" aria-label={`${score} of ${DAILY_COUNT} correct`}>{results.map((result, position) => <span key={position}>{resultEmoji(result.correct)}</span>)}</p>
+    <ol className="results-list">
+      {results.map((result, position) => <li key={result.id} className={result.correct ? 'won' : 'lost'}>
+        <span className="results-index">{position + 1}</span>
+        <span className="results-pick"><HeroPortrait hero={result.picked} size={32} /><span><small>You picked</small>{result.picked.name}</span></span>
+        <span className="results-answer"><HeroPortrait hero={result.answer} size={32} /><span><small>Died first</small>{result.answer.name}</span></span>
+        <span className="results-mark" aria-label={result.correct ? 'Correct' : 'Incorrect'}>{result.correct ? '✓' : '✗'}</span>
+      </li>)}
+    </ol>
+    <button className={`primary-button copy-button ${copied}`} onClick={copy}>{copied === 'copied' ? 'Copied!' : 'Copy result'}</button>
+    {copied === 'failed' && <textarea className="share-fallback" readOnly value={text} aria-label="Result to share" onFocus={event => event.currentTarget.select()} />}
+    <p className="results-next">Next puzzle in <time>{countdown}</time></p>
+  </section>;
 }
 
 function FeedUnit({ unit, heroes }: { unit: Unit | null; heroes: Array<Pick<Hero, 'id' | 'name' | 'team'>> }) {
@@ -215,13 +219,11 @@ function FeedEntry({ row, heroes }: { row: FeedRow; heroes: Array<Pick<Hero, 'id
   </li>;
 }
 
-function Game({ scenario, clientMap, nowMs, canNext, onNext, onResult }: {
-  scenario: Scenario; clientMap: ClientMap | null; nowMs: number;
-  canNext: boolean; onNext: () => void; onResult: (correct: boolean) => void;
+function Game({ scenario, clientMap, nowMs, nextLabel, onGuess, onReveal, onNext }: {
+  scenario: Scenario; clientMap: ClientMap | null; nowMs: number; nextLabel: string;
+  onGuess: (result: DailyResult) => void; onReveal: () => void; onNext: () => void;
 }) {
   const assets = useContext(AssetContext);
-  const nextDescriptionId = useId();
-  const nextDescription = canNext ? 'Load another eligible real scenario at random.' : 'No other eligible real scenarios are available.';
   const [selected, setSelected] = useState<string | null>(null);
   const [inspected, setInspected] = useState(scenario.question.optionIds[0]);
   const [locked, setLocked] = useState(false);
@@ -262,8 +264,8 @@ function Game({ scenario, clientMap, nowMs, canNext, onNext, onResult }: {
     if (!locked || revealed || time < revealAt) return;
     setRevealed(true);
     setBanner(true);
-    onResult(correct);
-  }, [locked, revealed, time, revealAt, correct, onResult]);
+    onReveal();
+  }, [locked, revealed, time, revealAt, onReveal]);
   useEffect(() => {
     if (!banner) return;
     const timer = window.setTimeout(() => setBanner(false), 2800);
@@ -276,6 +278,11 @@ function Game({ scenario, clientMap, nowMs, canNext, onNext, onResult }: {
   function lock() {
     if (!selected || committed.current) return;
     committed.current = true;
+    const ref = (id: string) => {
+      const option = options.find(candidate => candidate.id === id)!;
+      return { id: option.id, name: option.name, team: option.team };
+    };
+    onGuess({ id: scenario.id, correct: selected === answerId, picked: ref(selected), answer: ref(answerId) });
     setTime(0);
     setLocked(true);
     setPlaying(true);
@@ -339,9 +346,8 @@ function Game({ scenario, clientMap, nowMs, canNext, onNext, onResult }: {
               : <p className="pending-result" role="status">
                 <span>You picked <strong>{heroName(options, selected!)}</strong></span><span className="watching">Watching…</span>
               </p>}
-              <button className={`next-button ${revealed ? 'ready' : ''}`} disabled={!canNext} title={nextDescription} aria-describedby={nextDescriptionId}
-                onClick={() => { setPlaying(false); onNext(); }}>Next</button>
-              <span id={nextDescriptionId} className="sr-only">{nextDescription}</span>
+              <button className={`next-button ${revealed ? 'ready' : ''}`} disabled={!locked}
+                title={locked ? undefined : 'Guess first'} onClick={() => { setPlaying(false); onNext(); }}>{nextLabel}</button>
           </div>
         </aside>
         {locked && rows.length > 0 && <section className="events-panel" aria-label="Event feed">
