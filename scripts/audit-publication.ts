@@ -7,7 +7,7 @@ import { scenarioEligibility } from '../shared/recent.js';
 const rootFiles = new Set([
   '.gitignore', 'README.md', 'SCRAPE.md', 'THIRD_PARTY_NOTICES.md', 'LICENSE',
   'index.html', 'package.json', 'package-lock.json', 'tsconfig.json',
-  'vite.config.ts', 'vitest.config.ts', 'playwright.config.ts',
+  'vite.config.ts', 'vitest.config.ts',
 ]);
 const publicPath = (path: string) => /^(assets\/(?:.+\.png|manifest\.json|catalog\/[a-z_]+\.json)|maps\/dota-\d+\.json|scenarios\/(?:index|corpus-report|replay-\d+-\d+)\.json|THIRD_PARTY_NOTICES\.md)$/.test(path);
 const repositoryPath = (path: string) => rootFiles.has(path)

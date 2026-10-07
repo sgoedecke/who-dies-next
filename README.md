@@ -36,11 +36,9 @@ npm ci
 npm run dev -- --port 5187 --strictPort
 npm test
 npm run build
-npm run test:browser
 ```
 
-Open http://127.0.0.1:5187. Install the browser runtime once if needed with
-`npx playwright install chromium`.
+Open http://127.0.0.1:5187.
 
 ## GitHub Pages deployment
 
