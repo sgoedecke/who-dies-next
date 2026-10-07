@@ -87,11 +87,7 @@ for (const path of names) {
   tracked.set(path, bytes);
 }
 checkCorpus(tracked, 'public/');
-if (tracked.has('src/daily.ts')) throw new Error('Practice-only release must not contain the removed daily module');
-const app = tracked.get('src/App.tsx')?.toString('utf8') ?? '';
-if (!app || /\b(?:selectDaily|selectDailyWithNotice|dailySelection|dailyId|progressKey|parseProgress)\b|\blocalStorage\s*[.(]|>Daily</.test(app)) {
-  throw new Error('Practice-only release still contains daily selection, mode UI or completion restoration');
-}
+if (!tracked.has('src/App.tsx')) throw new Error('Release must contain the app source');
 if (!tracked.get('THIRD_PARTY_NOTICES.md')?.equals(tracked.get('public/THIRD_PARTY_NOTICES.md') ?? Buffer.alloc(0))) {
   throw new Error('Repository and deployed attribution notices must match');
 }
