@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { arenaCamera, heroCallouts } from './camera';
+import { arenaCamera, heroCallouts, surfaceExtent } from './camera';
 import type { ScreenRect } from './camera';
 import { worldToScreen } from './game';
 
@@ -32,6 +32,25 @@ describe('stable, truthful encounter camera', () => {
       });
     }
   }
+
+  it('extends context terrain across the surface with the identical world transform', () => {
+    const bounds = { minX: -500, maxX: 500, minY: 1000, maxY: 4680 };
+    for (const width of [292, 704]) {
+      const camera = arenaCamera(bounds, width);
+      for (const margin of [0, 40]) {
+        const extent = surfaceExtent(bounds, camera, margin);
+        expect(extent.viewport).toEqual({ left: -margin, top: -margin, width: camera.width + margin * 2, height: camera.height + margin * 2 });
+        expect(extent.bounds.minX).toBeLessThanOrEqual(bounds.minX);
+        expect(extent.bounds.maxY).toBeGreaterThanOrEqual(bounds.maxY);
+        for (const [x, y] of [[-500, 1000], [123, 2345], [500, 4680], [-2000, 9000]]) {
+          const expected = worldToScreen(bounds, x, y, camera.viewport)!;
+          const actual = worldToScreen(extent.bounds, x, y, extent.viewport)!;
+          expect(actual.x).toBeCloseTo(expected.x, 8);
+          expect(actual.y).toBeCloseTo(expected.y, 8);
+        }
+      }
+    }
+  });
 
   it('separates four clustered callouts without moving their actual anchors', () => {
     for (const width of [292, 362, 704]) {

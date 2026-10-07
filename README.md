@@ -17,6 +17,13 @@ readable portraits and collision-separated callouts keep encounters inspectable.
 The bottom-right minimap uses the same world crop. Hero/skill levels, resources,
 items and cooldowns follow observed samples; unavailable values remain unknown.
 
+The verdict is held back until the answer's recorded death plays, so the clip
+isn't spoiled. Movement trails, attack lines, cast icons, damage numbers and
+death bursts are all derived from recorded frames and events; nothing is
+simulated. The event feed lists casts, spell damage and deaths, and leaves out
+auto-attacks, modifiers and courier actions. A session-only score and streak
+lives in memory and is never stored.
+
 ## Run locally
 
 Node 22.12+ is required; CI uses Node 24. Playing the app requires **no Java,

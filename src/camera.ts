@@ -42,6 +42,28 @@ export function arenaCamera(bounds: Scenario['bounds'], measuredWidth: number): 
   };
 }
 
+/**
+ * World bounds and screen viewport covering the whole arena surface (plus an optional
+ * margin), using exactly the same linear transform as the encounter viewport. Context
+ * terrain can then fill the panel without moving any recorded actor.
+ */
+export function surfaceExtent(bounds: Scenario['bounds'], camera: Pick<ArenaCamera, 'width' | 'height' | 'viewport'>, margin = 0): {
+  bounds: Scenario['bounds']; viewport: MapViewport;
+} {
+  const { viewport } = camera;
+  const scale = viewport.width / (bounds.maxX - bounds.minX);
+  const x0 = -margin, x1 = camera.width + margin, y0 = -margin, y1 = camera.height + margin;
+  return {
+    bounds: {
+      minX: bounds.minX + (x0 - viewport.left) / scale,
+      maxX: bounds.minX + (x1 - viewport.left) / scale,
+      minY: bounds.maxY - (y1 - viewport.top) / scale,
+      maxY: bounds.maxY - (y0 - viewport.top) / scale,
+    },
+    viewport: { left: x0, top: y0, width: x1 - x0, height: y1 - y0 },
+  };
+}
+
 export interface LabelAnchor { id: string; name: string; x: number; y: number }
 export interface HeroCallout extends ScreenRect {
   id: string;

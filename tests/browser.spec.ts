@@ -104,12 +104,19 @@ test('wrong predictions stay locked and do not reveal future events before scrub
   await page.goto('./?scenario=unit-fight');
   await page.getByRole('radio', { name: /Lina/ }).check();
   await page.getByRole('button', { name: 'Guess', exact: true }).click();
-  await expect(page.getByRole('status', { name: 'Incorrect. Windranger dies next.' })).toBeVisible();
+  const verdict = page.getByRole('status', { name: 'Incorrect. Windranger dies next.' });
+  // The verdict waits for the answer's recorded death so the clip is not spoiled.
+  await expect(verdict).toHaveCount(0);
   await expect(page.getByRole('radio', { name: /Axe/ })).toBeDisabled();
   await expect(page.getByTitle('Axe blinks into range.', { exact: true })).toHaveCount(0);
   await page.getByLabel('Continuation timeline').fill('2');
   await expect(page.getByRole('region', { name: 'Event feed' }).getByTitle('Axe blinks into range.', { exact: true })).toBeVisible();
   await expect(page.getByTitle('Windranger dies first. Lina survives the window.', { exact: true })).toHaveCount(0);
+  await expect(verdict).toHaveCount(0);
+  await page.getByLabel('Continuation timeline').fill('10');
+  await expect(verdict).toBeVisible();
+  await page.getByLabel('Continuation timeline').fill('0');
+  await expect(verdict).toBeVisible();
 });
 
 test('published real replay is playable with a derived answer', async ({ page }) => {
@@ -369,8 +376,12 @@ test('every skill has a visible actual level, with zero and unknown distinct thr
 test('matched client map keeps sampled contours, baseline canopies and a correctly oriented full-map minimap', async ({ page }) => {
   await page.goto(`./?scenario=${referenceReplay.id}`);
   await expect(page.locator('.client-height-cell').first()).toBeAttached();
-  const trees = publishedMap.trees.filter(tree => tree.x >= referenceReplay.bounds.minX && tree.x <= referenceReplay.bounds.maxX
-    && tree.y >= referenceReplay.bounds.minY && tree.y <= referenceReplay.bounds.maxY);
+  // Terrain extends past the trajectory crop to fill the arena; trees follow the terrain extent.
+  const terrain = JSON.parse((await page.locator('.arena').getAttribute('data-terrain-bounds'))!) as typeof referenceReplay.bounds;
+  expect(terrain.minX).toBeLessThanOrEqual(referenceReplay.bounds.minX);
+  expect(terrain.maxY).toBeGreaterThanOrEqual(referenceReplay.bounds.maxY);
+  const trees = publishedMap.trees.filter(tree => tree.x >= terrain.minX && tree.x <= terrain.maxX
+    && tree.y >= terrain.minY && tree.y <= terrain.maxY);
   await expect(page.locator('.client-base-tree')).toHaveCount(trees.length);
   if (trees.length) {
     await expect(page.locator('.client-base-tree').first()).toHaveAttribute('aria-label', 'Base tree; current state unknown');

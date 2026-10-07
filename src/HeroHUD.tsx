@@ -71,7 +71,7 @@ export function HeroHUD({ hero }: { hero: Hero }) {
               onClick={() => setSelected({ kind: 'item', index })} onFocus={() => setSelected({ kind: 'item', index })}>
               <ItemArtwork name={item.name} slot />
               <SlotOverlay seconds={item.cooldown} />
-              {item.charges !== null && <span className="hud-slot-charges" aria-hidden="true">{item.charges}</span>}
+              {item.charges !== null && item.charges > 0 && <span className="hud-slot-charges" aria-hidden="true">{item.charges}</span>}
             </button>;
           })}
         </div>

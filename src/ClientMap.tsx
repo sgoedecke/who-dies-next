@@ -67,8 +67,15 @@ export function heightBand(value: number): number {
 }
 
 export function referenceHeightColor(value: number): string {
-  const colors = ['#1d404b', '#294d49', '#3c5340', '#4b6147', '#62704f', '#727953', '#7e805b', '#85815f', '#91876a'];
+  const colors = ['#1f4d63', '#355c48', '#3d5d37', '#4a6a3d', '#5a7543', '#677b47', '#757f4e', '#837f56', '#8f8562'];
   return colors[Math.max(0, Math.min(colors.length - 1, heightBand(value)))];
+}
+
+/** Deterministic per-tree variation so canopies don't read as a stamped pattern. */
+function treeVariation(x: number, y: number): { scale: number; tone: number; turn: number } {
+  const hash = Math.abs(Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1;
+  const second = Math.abs(Math.sin(x * 39.3468 + y * 11.135) * 24634.6345) % 1;
+  return { scale: 0.85 + hash * 0.4, tone: second, turn: Math.round((hash - 0.5) * 50) };
 }
 
 export function heightBandPaths(cells: HeightCell[]): Array<{ band: number; path: string }> {
@@ -168,40 +175,65 @@ export const ClientMinimap = memo(function ClientMinimap({ map, scenario, frame,
   </svg>;
 });
 
-export const ClientMapLayers = memo(function ClientMapLayers({ map, scenario, nowMs, viewport = MAP_VIEWPORT }: {
+export const ClientMapLayers = memo(function ClientMapLayers({ map, scenario, nowMs, viewport = MAP_VIEWPORT, bounds = scenario.bounds, clip = viewport }: {
   map: ClientMap | null;
   scenario: Scenario;
   nowMs: number;
   viewport?: MapViewport;
+  /** World extent rendered into `viewport`; defaults to the encounter crop. */
+  bounds?: Scenario['bounds'];
+  /** Visible screen rectangle; may be smaller than `viewport` so blurred edges bleed off-surface. */
+  clip?: MapViewport;
 }) {
-  const clipId = useId().replaceAll(':', '');
-  const cells = useMemo(() => map ? croppedHeightCells(map, scenario.bounds, viewport) : [], [map, scenario.bounds, viewport]);
+  const id = useId().replaceAll(':', '');
+  const cells = useMemo(() => map ? croppedHeightCells(map, bounds, viewport) : [], [map, bounds, viewport]);
   const paths = useMemo(() => heightBandPaths(cells), [cells]);
-  const contours = useMemo(() => map ? sampledHeightContours(map, scenario.bounds, viewport) : { major: '', minor: '' }, [map, scenario.bounds, viewport]);
-  const baseTrees = useMemo(() => map?.trees.filter(tree => tree.x >= scenario.bounds.minX && tree.x <= scenario.bounds.maxX
-    && tree.y >= scenario.bounds.minY && tree.y <= scenario.bounds.maxY) ?? [], [map, scenario.bounds]);
-  const treeScale = Math.max(0.4, Math.min(0.7, viewport.width / 650));
+  const contours = useMemo(() => map ? sampledHeightContours(map, bounds, viewport) : { major: '', minor: '' }, [map, bounds, viewport]);
+  const baseTrees = useMemo(() => map?.trees.filter(tree => tree.x >= bounds.minX && tree.x <= bounds.maxX
+    && tree.y >= bounds.minY && tree.y <= bounds.maxY) ?? [], [map, bounds]);
   if (!map || !clientMapEligibility(map, scenario, nowMs).eligible) return null;
-  return <g className="client-map-reference" data-client-map={map.id} clipPath={`url(#${clipId})`}>
-    <defs><clipPath id={clipId}><rect x={viewport.left} y={viewport.top} width={viewport.width} height={viewport.height} /></clipPath></defs>
-    <g className="client-height-layer" role="img" aria-label="Sampled current-client elevation; exact replay build unverified">
-      {paths.map(({ band, path }) => <path key={band} className="client-height-cell" d={path} fill={referenceHeightColor(band * 64)} data-height-band={band}>
-        <title>{`${band * 64}–${(band + 1) * 64} world units · sampled height band, not an exact cliff or pathing boundary`}</title>
-      </path>)}
+  const pixelsPerUnit = viewport.width / (bounds.maxX - bounds.minX);
+  const cellPixels = map.elevation.cellSize * pixelsPerUnit;
+  const soften = Math.max(0.8, Math.min(7, cellPixels * 0.32));
+  const shade = Math.max(1.5, Math.min(6, cellPixels * 0.2));
+  const treeScale = Math.max(0.5, Math.min(1.1, pixelsPerUnit * 2.6));
+  return <g className="client-map-reference" data-client-map={map.id} clipPath={`url(#${id}-clip)`}>
+    <defs>
+      <clipPath id={`${id}-clip`}><rect x={clip.left} y={clip.top} width={clip.width} height={clip.height} /></clipPath>
+      <filter id={`${id}-soften`} x="-2%" y="-2%" width="104%" height="104%"><feGaussianBlur stdDeviation={soften.toFixed(2)} /></filter>
+      <filter id={`${id}-mottle`} x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="3" seed="7" />
+        <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.6 0 0 0 -0.7" />
+      </filter>
+      <filter id={`${id}-grain`} x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="3" />
+        <feColorMatrix type="saturate" values="0" />
+      </filter>
+    </defs>
+    <g className="client-height-layer" role="img" aria-label="Sampled current-client elevation; exact replay build unverified" filter={`url(#${id}-soften)`}>
+      {paths.map(({ band, path }) => <g key={band}>
+        {band > 0 && <path className="height-shadow" d={path} transform={`translate(${shade.toFixed(2)},${(shade * 1.3).toFixed(2)})`} />}
+        <path className="client-height-cell" d={path} fill={referenceHeightColor(band * 64)} data-height-band={band}>
+          <title>{`${band * 64}–${(band + 1) * 64} world units · sampled height band, not an exact cliff or pathing boundary`}</title>
+        </path>
+      </g>)}
       <path className="height-contour minor" d={contours.minor} />
       <path className="height-contour major" d={contours.major} />
     </g>
+    <rect className="terrain-mottle" x={clip.left} y={clip.top} width={clip.width} height={clip.height} filter={`url(#${id}-mottle)`} />
+    <rect className="terrain-grain" x={clip.left} y={clip.top} width={clip.width} height={clip.height} filter={`url(#${id}-grain)`} />
     <g className="client-base-tree-layer" role="img" aria-label="Client base tree positions; current state unknown">
       {baseTrees.map((tree, index) => {
-        const point = worldToScreen(scenario.bounds, tree.x, tree.y, viewport)!;
+        const point = worldToScreen(bounds, tree.x, tree.y, viewport)!;
+        const variation = treeVariation(tree.x, tree.y);
         return <g key={index} className="client-base-tree" transform={`translate(${point.x},${point.y})`}
           data-source-layer={tree.layer} aria-label="Base tree; current state unknown">
           <title>Base tree; current state unknown</title>
-          <g transform={`scale(${treeScale})`}>
-            <ellipse className="reference-tree-shadow" cx="2" cy="5" rx="8" ry="4" />
-            <path className="reference-tree-trunk" d="M0 2V9" />
-            <path className="reference-tree-canopy" d="M0 -9C-6 -10 -9 -6 -7 -2C-10 3 -6 7 0 5C6 7 10 3 7 -2C9 -6 6 -10 0 -9Z" />
-            <path className="reference-tree-highlight" d="M-4 -3Q-3 -7 1 -6" />
+          <g transform={`scale(${(treeScale * variation.scale).toFixed(3)}) rotate(${variation.turn})`}>
+            <ellipse className="reference-tree-shadow" cx="3" cy="5" rx="10" ry="7" />
+            <path className="reference-tree-trunk" d="M0 2V7" />
+            <path className={`reference-tree-canopy tone-${Math.floor(variation.tone * 3)}`} d="M0 -10C-6 -11 -10 -7 -9 -2C-11 3 -7 8 -1 7C5 9 10 5 9 0C11 -5 7 -11 0 -10Z" />
+            <path className="reference-tree-highlight" d="M-5 -3Q-4 -8 1 -7" />
           </g>
         </g>;
       })}
