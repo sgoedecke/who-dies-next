@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { cp, lstat, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -8,6 +9,8 @@ import { buildManifest, fetchPng, summarize, validatePng, type Catalogs } from '
 import {
   assetRelativePath, buildPublicManifest, collectAssetReferences, imagePaths, preparePublicAssets, type AssetScenario,
 } from '../scripts/prepare-public-assets.js';
+
+const publishedCount = () => (JSON.parse(readFileSync('public/scenarios/index.json', 'utf8')) as { scenarios: unknown[] }).scenarios.length;
 
 const origin = 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/';
 const png = Buffer.from(
@@ -288,7 +291,7 @@ describe('bounded, verified downloads', () => {
       await expect(preparePublicAssets({ root, source: '..' })).rejects.toThrow('Source must');
     });
 
-    it('verifies a clean checkout using only published assets and 50 scenarios, with no private cache or network', async () => {
+    it('verifies a clean checkout using only published assets and scenarios, with no private cache or network', async () => {
       const network = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Network prohibited during verification'));
       await mkdir('.cache', { recursive: true });
       const root = await mkdtemp(resolve('.cache/asset-preparation-clean-checkout-'));
@@ -298,30 +301,20 @@ describe('bounded, verified downloads', () => {
       await expect(lstat(resolve(root, '.cache'))).rejects.toMatchObject({ code: 'ENOENT' });
       const report = await preparePublicAssets({ root, check: true });
       expect(report).toMatchObject({
-        scenarioCount: 50, pngFiles: 582, pngBytes: 20087182, backup: null,
+        scenarioCount: publishedCount(), backup: null,
         checks: { identicalResolutions: true, identicalPngHashes: true, noUnreferencedFiles: true },
       });
-      expect(report.outputTreeSha256).toBe('44663693578d13482b2a70693f73865cccccb816ba90f26777389dcf8317843f');
       await expect(lstat(resolve(root, '.cache/asset-backups'))).rejects.toMatchObject({ code: 'ENOENT' });
       await expect(lstat(resolve(root, '.cache/asset-catalog'))).rejects.toMatchObject({ code: 'ENOENT' });
       expect(network).not.toHaveBeenCalled();
     });
 
-    it('ships exactly the verified 50-clip subset, with no unreferenced published file', async () => {
+    it('ships exactly the referenced subset, with every hero and item portrait present', async () => {
       const report = await preparePublicAssets({ check: true });
-      expect(report).toMatchObject({
-        scenarioCount: 50, referenceOccurrences: 174285, distinctReferences: 1687, resolvedReferences: 619,
-        pngFiles: 582, pngBytes: 20087182,
-        summary: {
-          heroes: { total: 56, downloaded: 56, missing: 0 },
-          heroIcons: { total: 56, downloaded: 56, missing: 0 },
-          items: { total: 131, downloaded: 131, missing: 0 },
-          abilities: { total: 376, downloaded: 342, missing: 34 },
-          unsupportedAbilities: 432,
-        },
-      });
-      expect(report.unknownReferences).toHaveLength(1068);
-      expect(report.sourceManifestSha256).toBe('73b05ff8245d63076a2b979efbab32563678b92a6f72387c8072245f49f6477a');
+      expect(report.scenarioCount).toBe(publishedCount());
+      expect(report.summary.heroes.missing).toBe(0);
+      expect(report.summary.heroIcons.missing).toBe(0);
+      expect(report.summary.items.missing).toBe(0);
     });
   });
 

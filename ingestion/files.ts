@@ -33,8 +33,68 @@ export async function atomicJson(path: string, value: unknown, options: { compac
   } finally { await rm(temporary, { force: true }); }
 }
 export async function readJson(path: string): Promise<unknown> {
-  if ((await stat(path)).size > 256 * 1024 * 1024) throw new Error(`JSON exceeds 256 MiB: ${path}`);
-  return JSON.parse(await readFile(path, 'utf8'));
+  const size = (await stat(path)).size;
+  if (size > 2 * 1024 ** 3) throw new Error(`JSON exceeds 2 GiB: ${path}`);
+  if (size < 256 * 1024 ** 2) return JSON.parse(await readFile(path, 'utf8'));
+  return parseLargeJson(await readFile(path));
+}
+
+/** Long replays parse to more JSON than fits in one string, so parse top-level arrays an element at a time. */
+export function parseLargeJson(buffer: Buffer): unknown {
+  const text = (start: number, end: number) => JSON.parse(buffer.toString('utf8', start, end));
+  const skip = (index: number) => {
+    while ([0x20, 0x0a, 0x0d, 0x09].includes(buffer[index])) index++;
+    return index;
+  };
+  const expect = (index: number, byte: number) => {
+    if (buffer[index] !== byte) throw new Error(`Malformed JSON at byte ${index}`);
+    return index + 1;
+  };
+  const result: Record<string, unknown> = {};
+  let index = expect(skip(0), 0x7b);
+  for (index = skip(index); buffer[index] !== 0x7d; index = skip(index)) {
+    const keyEnd = valueEnd(buffer, index);
+    const key = text(index, keyEnd) as string;
+    index = skip(expect(skip(keyEnd), 0x3a));
+    if (buffer[index] === 0x5b) {
+      const items: unknown[] = [];
+      for (index = skip(index + 1); buffer[index] !== 0x5d; ) {
+        const end = valueEnd(buffer, index);
+        items.push(text(index, end));
+        index = skip(end);
+        if (buffer[index] === 0x2c) index = skip(index + 1);
+      }
+      result[key] = items;
+      index++;
+    } else {
+      const end = valueEnd(buffer, index);
+      result[key] = text(index, end);
+      index = end;
+    }
+    index = skip(index);
+    if (buffer[index] === 0x2c) index++;
+  }
+  return result;
+}
+
+function valueEnd(buffer: Buffer, start: number): number {
+  let depth = 0;
+  let inString = false;
+  for (let index = start; index < buffer.length; index++) {
+    const byte = buffer[index];
+    if (inString) {
+      if (byte === 0x5c) index++;
+      else if (byte === 0x22) {
+        inString = false;
+        if (depth === 0) return index + 1;
+      }
+    } else if (byte === 0x22) inString = true;
+    else if (byte === 0x7b || byte === 0x5b) depth++;
+    else if (byte === 0x7d || byte === 0x5d) {
+      if (--depth <= 0) return depth === 0 ? index + 1 : index;
+    } else if (depth === 0 && [0x2c, 0x20, 0x0a, 0x0d, 0x09].includes(byte)) return index;
+  }
+  return buffer.length;
 }
 export function compressionType(header: Buffer): 'bzip2' | 'zstd' {
   if (header.subarray(0, 3).equals(Buffer.from('BZh'))) return 'bzip2';

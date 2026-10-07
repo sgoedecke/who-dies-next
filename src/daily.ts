@@ -40,12 +40,16 @@ function seeded(seed: number): () => number {
 const matchOf = (id: string) => /^replay-(\d+)-/.exec(id)?.[1] ?? id;
 
 /**
- * Everyone gets the same five clips on a given day. The pool is dealt out in seeded shuffles so
- * no clip repeats until every clip has been used, and a day avoids repeating a match when it can.
+ * Everyone gets the same five clips on a given day, ordered easy to hard. The pool is split into
+ * five difficulty tiers and each day takes one clip from each tier, dealt from seeded shuffles so
+ * no clip repeats until every clip has been used. Within a tier, a match's clips are spread over
+ * consecutive days.
  */
 export function dailyIds(entries: Entry[], day: string, count = DAILY_COUNT): string[] {
+  const hardness = new Map(entries.map(entry => [entry.id, entry.difficulty ?? 0.5]));
+  const byDifficulty = (a: string, b: string) => hardness.get(a)! - hardness.get(b)! || a.localeCompare(b);
   const pool = entries.map(entry => entry.id).sort();
-  if (pool.length <= count) return pool;
+  if (pool.length <= count) return pool.sort(byDifficulty);
   const daysPerCycle = Math.floor(pool.length / count);
   const index = dayNumber(day) - dayNumber(DAILY_EPOCH);
   const cycle = Math.floor(index / daysPerCycle);
@@ -58,12 +62,15 @@ export function dailyIds(entries: Entry[], day: string, count = DAILY_COUNT): st
     }
     return items;
   };
-  // Group clips by match, then deal round-robin: a match's clips land on consecutive (distinct) days.
-  const byMatch = new Map<string, string[]>();
-  for (const id of pool) byMatch.set(matchOf(id), [...(byMatch.get(matchOf(id)) ?? []), id]);
-  const dealt = shuffle([...byMatch.values()]).flatMap(group => shuffle(group)).slice(0, daysPerCycle * count);
-  const order = shuffle(Array.from({ length: daysPerCycle }, (_, dayIndex) => dayIndex));
-  return shuffle(dealt.filter((_, position) => position % daysPerCycle === order[within]));
+  const deal = (ids: string[]) => {
+    const byMatch = new Map<string, string[]>();
+    for (const id of ids) byMatch.set(matchOf(id), [...(byMatch.get(matchOf(id)) ?? []), id]);
+    return shuffle([...byMatch.values()]).flatMap(group => shuffle(group));
+  };
+  const usable = shuffle([...pool]).slice(0, daysPerCycle * count).sort(byDifficulty);
+  const tiers = Array.from({ length: count }, (_, tier) => deal(usable.slice(tier * daysPerCycle, (tier + 1) * daysPerCycle)));
+  const slot = shuffle(Array.from({ length: daysPerCycle }, (_, dayIndex) => dayIndex))[within];
+  return tiers.map(tier => tier[slot]).sort(byDifficulty);
 }
 
 const storageKey = (day: string) => `who-dies-next:daily:${day}`;

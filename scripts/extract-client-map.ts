@@ -7,7 +7,7 @@ import { catalogSchema, rawReplaySchema, scenarioSchema } from '../shared/scenar
 import { assertRecentMatch } from '../shared/recent.js';
 import { decodeEntityDump, decodeHeightGrid, encodeHeightRows, sampleHeight, type MapEntity } from '../ingestion/client-map.js';
 import { MAP_DEPOT, MAP_MANIFEST, selectCurrentMapFiles } from '../ingestion/map-assets.js';
-import { atomicJson } from '../ingestion/files.js';
+import { atomicJson, readJson } from '../ingestion/files.js';
 import { worldCollisionSampler } from '../ingestion/collision-check.js';
 
 const root = resolve('.cache/terrain');
@@ -102,7 +102,7 @@ for (const entry of catalog.scenarios) {
   if (source.kind !== 'replay' || !source.matchId) throw new Error('Real scenario needs a match ID');
   assertRecentMatch(source.matchStartTime, `Map compatibility match ${source.matchId}`);
   if (compatibility.some(check => check.matchId === source.matchId)) continue;
-  const replay = rawReplaySchema.parse(JSON.parse(await readFile(`.cache/${source.replaySha256}-clarity-4.0.1-v3.json`, 'utf8')));
+  const replay = rawReplaySchema.parse(await readJson(`.cache/${source.replaySha256}-clarity-4.0.1-v3.json`));
   if (replay.matchId !== source.matchId) throw new Error('Replay cache match ID mismatch');
   const observed = replay.frames.find(frame => frame.towers?.length === 22)?.towers;
   if (!observed || new Set(observed.map(tower => tower.name)).size !== 22) throw new Error('All 22 named replay tower anchors are required');

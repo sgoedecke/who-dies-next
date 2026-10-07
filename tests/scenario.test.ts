@@ -25,11 +25,11 @@ describe('shared scenario contract', () => {
     expect(scenario.source.label).toContain('TEST ONLY');
     expect(() => scenarioSchema.parse({ ...scenario, source: { kind: 'synthetic', label: 'Removed demo', matchId: null, patch: null } })).toThrow();
   });
-  it('rejects more than four playable participants, without limiting raw replay rosters', () => {
+  it('rejects more than five playable participants, without limiting raw replay rosters', () => {
     const sample = createTestScenario();
-    for (const frame of sample.frames) frame.heroes.push(...[4, 5].map(n => ({ ...frame.heroes[0], id: `extra-${n}` })));
+    for (const frame of sample.frames) frame.heroes.push(...[4, 5, 6].map(n => ({ ...frame.heroes[0], id: `extra-${n}` })));
     sample.startSnapshot = sample.frames[0];
-    expect(() => scenarioSchema.parse(sample)).toThrow('at most four');
+    expect(() => scenarioSchema.parse(sample)).toThrow('at most 5');
     const raw = fixture();
     for (const frame of raw.frames) frame.heroes.push(...[4, 5].map(n => ({ ...frame.heroes[0], id: `extra-${n}` })));
     expect(rawReplaySchema.parse(raw).frames[0].heroes).toHaveLength(5);
@@ -135,14 +135,14 @@ describe('replay encounter extraction', () => {
     expect(scan.scenarios).toHaveLength(1);
     expect(scan.rejected['duplicate-source-window']).toBe(1);
   });
-  it('rejects five nearby heroes instead of truncating them or the answers', () => {
+  it('rejects six nearby heroes instead of truncating them or the answers', () => {
     const raw = fixture();
     for (const frame of raw.frames) {
-      frame.heroes.push(...[4, 5].map(n => ({ ...frame.heroes[1], id: `npc_dota_hero_extra_${n}` })));
+      frame.heroes.push(...[4, 5, 6].map(n => ({ ...frame.heroes[1], id: `npc_dota_hero_extra_${n}` })));
     }
     const scan = scanScenarios(raw, source);
     expect(scan.scenarios).toHaveLength(0);
-    expect(scan.rejected['more-than-four-relevant-heroes']).toBe(1);
+    expect(scan.rejected['too-many-relevant-heroes']).toBe(1);
   });
   it('closes remote interactions in both directions and rejects missing actors', () => {
     const raw = fixture();
@@ -152,36 +152,38 @@ describe('replay encounter extraction', () => {
     raw.events.unshift({ ...raw.events[1], time: 1, actorId: 'npc_dota_hero_axe', targetId: 'npc_dota_hero_remote' });
     // This outgoing target is beyond the proximity radius, and its path makes a tight view impossible.
     expect(scanScenarios(raw, source).rejected['encounter-too-spread']).toBe(1);
+    for (const frame of raw.frames) frame.heroes.push({ ...frame.heroes[1], id: 'npc_dota_hero_remote_2', x: 2600, y: 0 });
+    raw.events.unshift({ ...raw.events[1], time: 1.05, actorId: 'npc_dota_hero_remote_2', targetId: 'npc_dota_hero_remote' });
     raw.events.unshift({ ...raw.events[1], time: 1.1, actorId: 'npc_dota_hero_missing', targetId: 'npc_dota_hero_remote' });
-    expect(scanScenarios(raw, source).rejected['more-than-four-relevant-heroes']).toBe(1);
+    expect(scanScenarios(raw, source).rejected['too-many-relevant-heroes']).toBe(1);
     const missing = fixture();
     missing.events.unshift({ ...missing.events[1], time: 1, actorId: 'npc_dota_hero_missing', targetId: missing.frames[0].heroes[0].id });
     expect(scanScenarios(missing, source).rejected['participant-missing-from-setup']).toBe(1);
   });
-  it('follows chains longer than two passes without dropping a decisive fifth hero', () => {
+  it('follows chains longer than two passes without dropping a decisive sixth hero', () => {
     const raw = fixture();
     for (const frame of raw.frames) {
       frame.heroes[1].x = 4000;
       frame.heroes[2].x = 4100;
-      frame.heroes.push(...[4, 5].map(n => ({ ...frame.heroes[1], id: `npc_dota_hero_remote_${n}`, x: 4200 + n })));
+      frame.heroes.push(...[4, 5, 6].map(n => ({ ...frame.heroes[1], id: `npc_dota_hero_remote_${n}`, x: 4200 + n })));
     }
     const ids = raw.frames[0].heroes.map(hero => hero.id);
     raw.events = [
-      ...[3, 2, 1, 0].map(index => ({ ...raw.events[1], time: 1, actorId: ids[index + 1], targetId: ids[index] })),
+      ...[4, 3, 2, 1, 0].map(index => ({ ...raw.events[1], time: 1, actorId: ids[index + 1], targetId: ids[index] })),
       { ...raw.events.at(-1)!, actorId: null },
     ];
-    expect(scanScenarios(raw, source).rejected['more-than-four-relevant-heroes']).toBe(1);
+    expect(scanScenarios(raw, source).rejected['too-many-relevant-heroes']).toBe(1);
   });
   it('retains relevant corpses through events, but excludes inactive old corpses by proximity', () => {
     const raw = fixture();
-    for (const frame of raw.frames) frame.heroes.push(...[4, 5].map(n => ({
+    for (const frame of raw.frames) frame.heroes.push(...[4, 5, 6].map(n => ({
       ...frame.heroes[1], id: `npc_dota_hero_corpse_${n}`, alive: false, hp: 0,
     })));
     expect(extractScenarios(raw, source)[0].startSnapshot.heroes).toHaveLength(3);
-    raw.events.push(...[4, 5].map(n => ({
+    raw.events.push(...[4, 5, 6].map(n => ({
       ...raw.events[1], time: 5, actorId: `npc_dota_hero_corpse_${n}`, targetId: raw.frames[0].heroes[0].id,
     })));
-    expect(scanScenarios(raw, source).rejected['more-than-four-relevant-heroes']).toBe(1);
+    expect(scanScenarios(raw, source).rejected['too-many-relevant-heroes']).toBe(1);
   });
   it('keeps every recorded participant point inside a stable tight view and rejects path outliers', () => {
     const scenario = extractScenarios(fixture(), source)[0];

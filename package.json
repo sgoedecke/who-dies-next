@@ -10,6 +10,7 @@
     "test": "vitest run",
     "ingest": "tsx ingestion/cli.ts",
     "scrape": "tsx ingestion/batch.ts",
+    "corpus": "NODE_OPTIONS=--max-old-space-size=8192 tsx ingestion/build-corpus.ts",
     "audit:publish": "tsx scripts/prepare-public-assets.ts --check && tsx scripts/audit-publication.ts",
     "assets:fetch": "tsx scripts/fetch-assets.ts",
     "assets:prepare": "tsx scripts/prepare-public-assets.ts",

@@ -19,15 +19,25 @@ describe('daily selection', () => {
     expect(dailyIds(entries, '2026-10-07')).toHaveLength(DAILY_COUNT);
   });
 
-  it('uses every clip once per cycle and avoids repeating a match within a day where possible', () => {
+  it('uses every clip at most once per cycle and orders each day easy to hard', () => {
     const cycle = Math.floor(entries.length / DAILY_COUNT);
+    const hardness = new Map(entries.map(entry => [entry.id, entry.difficulty ?? 0.5]));
     const used = days('2026-10-07', cycle).flatMap(day => {
       const ids = dailyIds(entries, day);
-      expect(new Set(ids.map(id => id.split('-')[1])).size).toBe(DAILY_COUNT);
+      const levels = ids.map(id => hardness.get(id)!);
+      expect(levels).toEqual([...levels].sort((a, b) => a - b));
       return ids;
     });
     expect(new Set(used).size).toBe(cycle * DAILY_COUNT);
     expect(dailyIds(entries, days('2026-10-07', cycle + 1)[cycle])).toHaveLength(DAILY_COUNT);
+  });
+
+  it('gives each day one clip from each difficulty tier', () => {
+    const tiered = Array.from({ length: 20 }, (_, index) => ({ ...entries[0], id: `replay-${index % 7}-${index}`, difficulty: index / 20 }));
+    for (const day of days('2026-10-07', 4)) {
+      const levels = dailyIds(tiered, day).map(id => Math.floor(Number(id.split('-')[2]) / 4));
+      expect(levels).toEqual([0, 1, 2, 3, 4]);
+    }
   });
 
   it('numbers puzzles from launch day', () => {

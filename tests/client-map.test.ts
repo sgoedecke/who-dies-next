@@ -98,8 +98,9 @@ describe('decoded current-map entities', () => {
 });
 
 const map = clientMapSchema.parse(JSON.parse(readFileSync('public/maps/dota-6934.json', 'utf8')));
-const scenario = scenarioSchema.parse(JSON.parse(readFileSync('public/scenarios/replay-9009355617-298767.json', 'utf8')));
-const now = Date.parse('2026-09-21T12:00:00Z');
+const firstClip = catalogSchema.parse(JSON.parse(readFileSync('public/scenarios/index.json', 'utf8'))).scenarios[0];
+const scenario = scenarioSchema.parse(JSON.parse(readFileSync(`public${firstClip.path}`, 'utf8')));
+const now = Date.now();
 describe('published real client-map contract and compatibility', () => {
   it('contains the exact verified archive, all extracted tree origins and bounded height coverage', () => {
     expect(map.source.archiveSha256).toBe('39aef5c803e8b936646f5f77c6b540c11cb848a6fba7bd7ceebd13b6e2b0705d');

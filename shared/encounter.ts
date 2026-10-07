@@ -1,4 +1,4 @@
-export const MAX_SCENARIO_HEROES = 4;
+export const MAX_SCENARIO_HEROES = 5;
 export const MAX_HERO_SPAN = 3200;
 export const CAMERA_MARGIN = 240;
 export const MIN_CAMERA_EXTENT = 1000;

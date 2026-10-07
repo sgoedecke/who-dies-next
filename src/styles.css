@@ -321,6 +321,7 @@ h1 { font-size: clamp(30px, 3.2vw, 43px); font-weight: 650; letter-spacing: -1.7
   .inspection-panel { order: 2; }
   .answer-options { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
   .answer-option { gap: 8px; padding: 9px; min-height: 65px; }
+  .answer-option:last-of-type:nth-of-type(odd) { grid-column: 1 / -1; }
   .answer-option .portrait { width: 33px !important; height: 33px !important; }
   .answer-name strong { font-size: 11px; line-height: 1.2; }
   .answer-name small { font-size: 8px; }

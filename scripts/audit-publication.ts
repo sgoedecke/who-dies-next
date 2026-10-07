@@ -56,9 +56,8 @@ function checkCorpus(files: Map<string, Buffer>, prefix: string) {
   const index = files.get(`${prefix}scenarios/index.json`);
   if (!index) throw new Error('Publication has no scenario catalog');
   const catalog = catalogSchema.parse(JSON.parse(index.toString('utf8')));
-  if (catalog.scenarios.length !== 50) throw new Error('Publication must preserve exactly 50 real snippets');
   const actual = [...files.keys()].filter(path => path.startsWith(`${prefix}scenarios/replay-`));
-  if (actual.length !== 50) throw new Error('Publication has missing or extra snippet files');
+  if (actual.length !== catalog.scenarios.length) throw new Error('Publication has missing or extra snippet files');
   const ids = new Set<string>(), matches = new Map<string, number>();
   for (const entry of catalog.scenarios) {
     if (entry.path !== `/scenarios/${entry.id}.json` || ids.has(entry.id)) throw new Error('Invalid or duplicate catalog identity');
@@ -71,6 +70,7 @@ function checkCorpus(files: Map<string, Buffer>, prefix: string) {
     matches.set(scenario.source.matchId, (matches.get(scenario.source.matchId) ?? 0) + 1);
   }
   if ([...matches.values()].some(count => count > 5)) throw new Error('Publication exceeds five snippets per match');
+  return catalog.scenarios.length;
 }
 
 const names = execFileSync('git', ['ls-files', '--cached', '-z'], { encoding: 'utf8' }).split('\0').filter(Boolean);
@@ -99,5 +99,5 @@ for (const path of await walk('dist')) {
   built.set(path, bytes);
   if (publicPath(path) && !tracked.get(`public/${path}`)?.equals(bytes)) throw new Error(`Built public artifact differs from audited git index: ${path}`);
 }
-checkCorpus(built, '');
-console.log(`Publication audit passed: ${tracked.size} tracked files; ${built.size} deployment files; exactly 50 real snippets; no denied artifacts or detected private data.`);
+const snippetCount = checkCorpus(built, '');
+console.log(`Publication audit passed: ${tracked.size} tracked files; ${built.size} deployment files; ${snippetCount} real snippets; no denied artifacts or detected private data.`);

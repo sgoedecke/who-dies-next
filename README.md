@@ -6,13 +6,15 @@ This is a lightweight 2D browser view, not a Dota renderer or simulator.
 
 - App: **https://sgoedecke.github.io/who-dies-next/**
 - Repository: **https://github.com/sgoedecke/who-dies-next**
-- **50 real snippets from 11 recent matches**, at most four relevant heroes
-  per snippet and five snippets per match.
+- **187 real snippets from 48 recent pro and high-rank matches**, up to five
+  relevant heroes per snippet and five snippets per match, chosen by a drama
+  score (upsets, close calls, trades, crowded fights) from 400+ candidates.
 - Daily: everyone gets the same five clips each day, turning over at local
-  midnight. Guess, watch, then move on to the next clip. At the end, a results
-  page shows your score and a **Copy result** button that copies a five-square
-  emoji summary and a link. The day's clips are dealt from seeded shuffles of
-  the pool, so no clip repeats until all have been used.
+  midnight, ordered from easiest to hardest. Guess, watch, then move on to the
+  next clip. At the end, a results page shows your score and a **Copy result**
+  button that copies a five-square emoji summary and a link. The day's clips
+  are dealt from seeded shuffles of five difficulty tiers, so no clip repeats
+  until all have been used.
 
 The exact recorded hero coordinates are preserved. A tight stable camera,
 readable portraits and collision-separated callouts keep encounters inspectable.
@@ -55,16 +57,14 @@ npm run audit:publish
 ```
 
 All scenario, icon-manifest, image and terrain requests resolve against Vite's
-base URL. Local development defaults to `/`. Old `mode` query parameters and
-daily completion records do not restrict practice. A valid
-`?scenario=replay-<match>-<start-ms>` bookmark still opens that encounter.
+base URL. Local development defaults to `/`.
 
 Publication uses an explicit source/artifact allowlist. Credentials, private
 profiles, raw replays, depot files, local tools/runtimes, `node_modules`, logs,
 screenshots and caches are never part of the repository or Pages artifact.
 The audit inspects exact git-index bytes and verifies that built public data
-matches them. It rejects private-path/token patterns, unexpected files and any
-corpus other than the intended 50 real snippets.
+matches them. It rejects private-path/token patterns, unexpected files and
+catalog/file mismatches in the published corpus.
 
 ## Refresh the replay corpus
 
@@ -73,9 +73,9 @@ provenance and measured results are in **[SCRAPE.md](SCRAPE.md)**.
 
 ```sh
 npm run worker:build
-npm run scrape -- --target 50 --max-per-match 5
+npm run corpus -- --source pro --new 20   # rescans the cache, adds 20 new matches
 npm run map:extract       # only with the authorized cached client assets
-npm run assets:prepare   # keep only assets used by the current corpus
+npm run assets:prepare -- --source .cache/asset-backups/<hash>/assets
 npm test
 VITE_BASE_PATH=/who-dies-next/ npm run build
 # Stage only intended source, snippets and required assets; inspect the list.
@@ -98,13 +98,13 @@ and never substitutes a demo.
 ## Data limits and provenance
 
 - Outcomes are observed first deaths, not optimal-play or escape simulations.
-  Complete relevant participants are included; encounters with more than four
+  Complete relevant participants are included; encounters with more than five
   heroes or excessively spread trajectories are rejected, never truncated.
 - Actual sampled states/events determine playback. Interpolation is visual;
   it does not simulate vision, pathing, projectiles, creeps or counterfactuals.
 - The qualified current-client map reference contains 2,475 tree origins and
   80,726 collision-checked height samples. Missing cells stay unknown.
-  All 22 tower anchors were checked separately for each of the 11 exact replay
+  All 22 tower anchors were checked separately for each of the 48 exact replay
   hashes; recency alone does not establish compatible geometry.
 - Permanent-tree cut/regrowth state and exact replay server builds remain
   unknown. The reference is not a live obstruction or vision model.

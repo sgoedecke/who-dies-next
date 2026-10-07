@@ -1,27 +1,50 @@
 # Generating real Dotadle snippets
 
-The public product is **Who dies next?**, a practice-only static fan app:
+The public product is **Who dies next?**, a daily static fan app:
 https://sgoedecke.github.io/who-dies-next/ ([repository](https://github.com/sgoedecke/who-dies-next)).
-There is no shipped demo or daily-mode UI. Historical daily-pin measurements
-below describe earlier migrations, not current browser behavior.
+Everyone gets the same five clips per day, ordered easy to hard.
 
-After setup, run:
+After setup, build the corpus with:
 
 ```sh
-npm run scrape -- --target 50 --max-per-match 5
+npm run corpus -- --source pro --new 20
+npm run map:extract      # terrain compatibility for any new matches
+npm run assets:prepare -- --source .cache/asset-backups/<hash>/assets
 ```
 
-This builds an active corpus of **50 distinct ten-second first-death puzzles
-from at least ten matches**, with hard maxima of **five per match** and
-**four relevant heroes per snippet**. It uses
-verified cached replays first, then downloads and parses additional recent public
-replays only if needed. It does not generate synthetic substitutes, simulate
-counterfactual actions, or derive playback from match-summary statistics.
+`npm run corpus` (`ingestion/build-corpus.ts`) scans **every** cached parsed
+replay, optionally downloads and parses `--new` more recent matches, extracts
+every acceptable death window, scores each one and publishes the best. It
+deletes each downloaded `.dem.bz2` once parsed; the parsed JSON stays cached.
 
-The command reports `complete` only when the target is actually reached. A
-smaller valid corpus is explicitly `partial` with exit code 2. Read
-`public/scenarios/corpus-report.json` for the latest measured result, failures,
-source distribution, dates, exclusions and verification status.
+| Flag | Default | Meaning |
+| --- | --- | --- |
+| `--source` | `pro` | `pro` (OpenDota pro matches), `ranked` (Immortal-bracket public matches), `parsed` or `public` |
+| `--new` | 0 | Number of new matches to download and parse |
+| `--target` | 300 | Maximum clips to publish |
+| `--max-per-match` | 5 | Hard cap per match |
+| `--min-interest` | 2 | Drop clips scoring below this drama score |
+| `--attempts` | 60 | Discovery attempts while looking for new matches |
+| `--offline` | off | No network; use cached replays only |
+
+### Scoring clips
+
+`ingestion/interest.ts` measures each candidate clip:
+
+- **interest** rewards upsets (the victim was not the lowest-HP option), close
+  calls (another option nearly died), trades, more options (up to five heroes)
+  and lots of action, and penalises obvious two-hero clips where the
+  lowest-HP hero dies. Clips are chosen greedily by interest, respecting the
+  per-match cap, unique outcomes and non-overlapping windows.
+- **difficulty** (0–1) estimates how hard the answer is to read from the
+  setup. The app splits the pool into five difficulty tiers and gives each
+  day one clip from each tier, played easiest first.
+
+Both values are written to `public/scenarios/index.json`.
+`public/scenarios/corpus-report.json` records the matches, scores and rejections.
+
+The older `npm run scrape` batch (described below) is kept for reference but
+`npm run corpus` is the publishing path.
 
 ## Setup
 
@@ -130,7 +153,7 @@ keeps a complete ten-second sampled continuation. Acceptance requires:
   opposing-hero damage in the clip.
 - An unambiguous first participant death from actual replay events; near-tied
   deaths within the sampling interval are rejected.
-- At most **four distinct relevant heroes**, never a truncated roster. Seed
+- At most **five distinct relevant heroes**, never a truncated roster. Seed
   participants are living/unknown-life heroes within 2,400 world units of the
   victim (its last living location after death). Then the entire connected
   hero interaction graph is included, in both directions, to a fixed point:
@@ -208,13 +231,9 @@ to inflate the count. A hard cap can retire old entries; current-day pin priorit
 does not exempt a match or encounter from either hard cap. Changed daily pins and archived IDs are
 explicitly recorded in the report.
 
-The batch retains backward-compatible daily metadata for old ingestion users;
-the current browser ignores it. It does not install an OS scheduler.
-The app is practice-only: **Next** chooses a random eligible real clip other
-than the current one, resetting to a fresh frozen setup. There are no mode tabs,
-daily completion locks or saved-answer restoration.
-There is no dropdown; `/?scenario=<id>` selects an active clip directly.
-Guessing locks the answer and starts actual playback.
+The browser picks each day's five clips itself (`src/daily.ts`) from the
+catalog's eligible entries; `daily` metadata in the index is ignored. Guessing
+locks the answer and starts actual playback.
 
 ## Publish a corpus refresh
 
@@ -223,7 +242,8 @@ remain local maintenance tasks; never upload their private caches or raw inputs.
 After generating and verifying the corpus:
 
 ```sh
-npm run assets:prepare
+npm run map:extract
+npm run assets:prepare -- --source .cache/asset-backups/<hash>/assets
 npm test
 VITE_BASE_PATH=/who-dies-next/ npm run build
 # Stage only the intended source and generated public corpus/assets.

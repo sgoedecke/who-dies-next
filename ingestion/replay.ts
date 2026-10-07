@@ -24,8 +24,9 @@ const provenanceSchema = z.object({
   source: sourceSchema,
 });
 
-export async function discoverMatches(source: 'public' | 'parsed' | 'pro', attempts: number, random = randomInt): Promise<string[]> {
-  const endpoint = { public: 'publicMatches', parsed: 'parsedMatches', pro: 'proMatches' }[source];
+export async function discoverMatches(source: 'public' | 'parsed' | 'pro' | 'ranked', attempts: number, random = randomInt): Promise<string[]> {
+  // "ranked" means recent public matches averaging Immortal rank.
+  const endpoint = { public: 'publicMatches', parsed: 'parsedMatches', pro: 'proMatches', ranked: 'publicMatches?min_rank=80' }[source];
   console.log(`Discovering recent matches through OpenDota /${endpoint}`);
   const list = z.array(z.object({
     match_id: z.number().int().positive(), duration: z.number().optional(), start_time: z.number().optional(),

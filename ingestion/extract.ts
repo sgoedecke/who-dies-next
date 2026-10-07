@@ -65,7 +65,7 @@ export function scanScenarios(raw: RawReplay, source: ReplaySource, options: { l
         }
       }
     }
-    if (participantIds.size > MAX_SCENARIO_HEROES) { reject('more-than-four-relevant-heroes'); continue; }
+    if (participantIds.size > MAX_SCENARIO_HEROES) { reject('too-many-relevant-heroes'); continue; }
     const initial = clip[0].heroes.filter(h => participantIds.has(h.id));
     const ids = new Set(initial.map(h => h.id));
     if (ids.size !== participantIds.size) { reject('participant-missing-from-setup'); continue; }

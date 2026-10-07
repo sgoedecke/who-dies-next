@@ -135,7 +135,7 @@ export const scenarioArchiveSchema = z.object({
 });
 export const scenarioSchema = scenarioArchiveSchema.superRefine((scenario, ctx) => {
   const error = (message: string) => ctx.addIssue({ code: 'custom', message });
-  if (scenario.startSnapshot.heroes.length > MAX_SCENARIO_HEROES) error('Playable snippets contain at most four relevant heroes');
+  if (scenario.startSnapshot.heroes.length > MAX_SCENARIO_HEROES) error(`Playable snippets contain at most ${MAX_SCENARIO_HEROES} relevant heroes`);
   const bounds = trajectoryBounds(scenario.frames);
   if (scenario.source.kind === 'replay') {
     if (scenario.frames.some(frame => frame.heroes.some(hero => hero.x === null || hero.y === null))) error('Replay participant positions must be known throughout the snippet');
@@ -149,8 +149,12 @@ export const catalogSchema = z.object({
   scenarios: z.array(z.object({
     id: z.string(), title: z.string(), kind: z.literal('replay'), path: z.string(),
     matchStartTime: z.number().int().positive().nullable().optional(),
+    /** Estimated chance of a wrong guess, 0 (easy) to 1 (hard); orders each day's clips. */
+    difficulty: z.number().min(0).max(1).optional(),
+    /** Selection score: upsets, close calls, trades, fight size and action. */
+    interest: z.number().optional(),
   })).min(1),
-  daily: z.record(z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.string()),
+  daily: z.record(z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.string()).default({}),
   retiredQuestionIds: z.array(z.string().regex(/^[a-zA-Z0-9_-]+$/)).optional(),
 }).superRefine((catalog, ctx) => {
   const retired = new Set(catalog.retiredQuestionIds ?? []);

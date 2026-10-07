@@ -29,7 +29,7 @@ export function windowsConflict(a: Scenario, b: Scenario): boolean {
     && Math.abs(a.startTime - b.startTime) < MIN_WINDOW_GAP - 0.000001;
 }
 export function qualityRejection(scenario: Scenario): string | null {
-  if (scenario.startSnapshot.heroes.length > MAX_SCENARIO_HEROES) return 'more-than-four-relevant-heroes';
+  if (scenario.startSnapshot.heroes.length > MAX_SCENARIO_HEROES) return 'too-many-relevant-heroes';
   const bounds = trajectoryBounds(scenario.frames);
   if (!bounds || scenario.frames.some(frame => frame.heroes.some(hero => hero.x === null || hero.y === null))) return 'participant-position-unknown';
   if (bounds.maxX - bounds.minX > MAX_HERO_SPAN || bounds.maxY - bounds.minY > MAX_HERO_SPAN) return 'encounter-too-spread';

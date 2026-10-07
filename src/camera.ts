@@ -142,14 +142,14 @@ export function heroCallouts(anchors: LabelAnchor[], camera: ArenaCamera, obstac
   const clear = (rect: ScreenRect, areas: ScreenRect[]) => areas.every(other => overlap(rect, other, 1.5) === 0);
   if (initial.every((label, index) => clear(label, [...protectedAreas, ...initial.slice(index + 1)]))) return initial;
 
-  // A greedy placement can trap the last label. At most four participants make
-  // a bounded joint search practical; only callouts move, never hero anchors.
+  // A greedy placement can trap the last label, so try a small joint search over the nearest free
+  // spots. It is capped tightly because this runs every animation frame; only callouts move.
   const ordered = [...anchors].sort((a, b) => b.name.length - a.name.length);
   for (const fixed of [[...protectedAreas, ...obstacles], protectedAreas]) {
     let attempts = 0;
     const search = (index: number, placed: HeroCallout[]): HeroCallout[] | null => {
       if (index === ordered.length) return placed;
-      if (++attempts > 10_000) return null;
+      if (++attempts > 60) return null;
       const anchor = ordered[index];
       const width = calloutWidth(anchor.name);
       const height = 46;
@@ -168,7 +168,7 @@ export function heroCallouts(anchors: LabelAnchor[], camera: ArenaCamera, obstac
       }
       const distance = (rect: ScreenRect) => Math.hypot(rect.x + width / 2 - anchor.x, rect.y + height / 2 - anchor.y);
       candidates.sort((a, b) => distance(a) - distance(b));
-      for (const rect of candidates) {
+      for (const rect of candidates.slice(0, 10)) {
         const result = search(index + 1, [...placed, {
           id: anchor.id, ...rect,
           leader: { x: clamp(anchor.x, rect.x, rect.x + width), y: clamp(anchor.y, rect.y, rect.y + height) },
