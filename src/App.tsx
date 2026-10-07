@@ -349,14 +349,6 @@ function Game({ scenario, clientMap, nowMs, canNext, onNext, onResult }: {
         </section>}
       </div>
       <section className="inspection-panel" aria-label="Hero inspection">
-        <div className="hero-tabs" aria-label="Choose a hero to inspect">
-          {frame.heroes.map(h => <button key={h.id} onClick={() => setInspected(h.id)} aria-pressed={inspected === h.id}
-            className={`${h.team} ${inspected === h.id ? 'active' : ''} ${h.alive === false ? 'dead' : ''}`}>
-            <span className="tab-portrait" aria-hidden="true"><HeroPortrait hero={h} size={24} /></span>{h.name}
-            <span className="roster-level" aria-label={`Hero level ${h.level ?? 'unknown'}`}>Lv {h.level ?? '?'}</span>
-            {h.alive === false && <span title="Dead" aria-label="Dead">☠</span>}
-          </button>)}
-        </div>
         <HeroHUD key={hero.id} hero={hero} />
       </section>
     </div>
